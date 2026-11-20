@@ -273,13 +273,13 @@ Catatan McD: tanpa data outlet (customer mengetik outlet sendiri). Menunya punya
 - Folder proyek: `websitebisnis/jasdor-v2`.
 - Harga dasar KK mengikuti data menu per outlet (bukan aturan per jenis outlet). Contoh Kopi Kenangan Mantan: Rp19.000 di 1.203 outlet, Rp22.000 di 152 outlet, Rp32.000 di 7 outlet (6 bandara + Bayfront Mall Batam). Outlet berharga Rp32.000 tetap dilayani.
 - Fore Coffee of The Day tidak dijual. Outlet KK berkategori Kenangan Signature disaring.
+- Koreksi isian template KK: Choco Caramel Frappe hanya Ice; Earl Grey Tea tanpa pilihan susu; harga asli yang diisi sama dengan harga Regular dianggap "tidak ada data" (harga coret memakai tambahan harga jasdor).
 - Pesanan dipecah otomatis menjadi beberapa transaksi; voucher tanpa batas harian.
 - Chagee: 1 item = 30%, 2 item = 50%, 3 item = 50% + 30%.
 - Kustomisasi KK dari `kustomisasi-kopken.json` (pemilik, 20 Nov), harga add-on KK dari v1. Kustomisasi Fore dari v1. Minuman tanpa data kustomisasi tidak dijual sampai datanya ada.
 
 ### Masih terbuka
 
-1. Konfirmasi isian template KK: Choco Caramel Frappe diisi bisa Hot; beberapa minuman diisi harga Oatside asli sama dengan Regular (harga coret Oatside +0, jasdor tetap +Rp3.000).
-2. Mixue: aturan minimal belanja Rp40.000 terhadap Boba Sundae (menunggu data Mixue). Sementara mesin harga menghitung minimal belanja setelah potongan promo item.
-3. Foto Chagee: cari dari sumber resmi Chagee, bukan dari server pihak ketiga.
-4. Fee Chagee, Chatime, Mixue (diisi 0 dulu).
+1. Mixue: aturan minimal belanja Rp40.000 terhadap Boba Sundae (menunggu data Mixue). Sementara mesin harga menghitung minimal belanja setelah potongan promo item.
+2. Foto Chagee: cari dari sumber resmi Chagee, bukan dari server pihak ketiga.
+3. Fee Chagee, Chatime, Mixue (diisi 0 dulu).
