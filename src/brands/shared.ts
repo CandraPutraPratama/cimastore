@@ -76,3 +76,52 @@ export interface ImportReport {
   counts: Record<string, number>;
   warnings: string[];
 }
+
+export interface OutletMenuItem {
+  price: number;
+  originalPrice?: number | null;
+  isSoldOut?: boolean | null;
+}
+
+/**
+ * Menyusun price list per outlet dari menu tiap outlet.
+ * Harga dipisah dari ketersediaan: produk yang tidak ada di sebuah outlet tetap diberi
+ * harga paling umum lalu ditandai "hidden", supaya outlet dengan harga sama berbagi price list.
+ */
+export function buildPerOutletPricing(
+  menus: Map<string, Map<string, OutletMenuItem>>,
+  productIds: Iterable<string>,
+): {
+  entries: Array<{ outletCode: string; content: import("../core/catalog/dedupe").PriceListContent }>;
+  availability: NonNullable<CatalogSnapshotInput["availability"]>;
+} {
+  const ids = [...productIds];
+  const modal = new Map<string, number>();
+  for (const id of ids) {
+    const tally = new Map<number, number>();
+    for (const items of menus.values()) {
+      const item = items.get(id);
+      if (item) tally.set(item.price, (tally.get(item.price) ?? 0) + 1);
+    }
+    const best = [...tally.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
+    if (best) modal.set(id, best[0]);
+  }
+
+  const entries: Array<{ outletCode: string; content: import("../core/catalog/dedupe").PriceListContent }> = [];
+  const availability: NonNullable<CatalogSnapshotInput["availability"]> = [];
+  for (const [outletCode, items] of menus) {
+    const basePrices: Record<string, number> = {};
+    const compareAtBasePrices: Record<string, number> = {};
+    for (const id of ids) {
+      const item = items.get(id);
+      const price = item?.price ?? modal.get(id);
+      if (price === undefined) continue;
+      basePrices[id] = price;
+      if (item?.originalPrice && item.originalPrice > item.price) compareAtBasePrices[id] = item.originalPrice;
+      if (!item) availability.push({ outletCode, productId: id, status: "hidden" });
+      else if (item.isSoldOut) availability.push({ outletCode, productId: id, status: "sold_out" });
+    }
+    entries.push({ outletCode, content: { basePrices, compareAtBasePrices, optionDeltas: {} } });
+  }
+  return { entries, availability };
+}

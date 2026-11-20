@@ -455,7 +455,14 @@ export function priceOrder(
 ): PricedOrder {
   const promos = activePromos(config.promos, options.now ?? new Date());
   const itemPromos = promos.filter((p) => p.level === "item");
-  const txPromos = promos.filter((p) => p.level === "transaction");
+  // Urutkan voucher dari batas potongan terkecil: bila dua voucher memberi potongan sama,
+  // yang dipakai voucher "lebih lemah" sehingga voucher berbatas besar disimpan untuk
+  // pesanan yang memang membutuhkannya (contoh KK: maks 30rb dulu, maks 35rb di atas 60rb).
+  const txPromos = promos
+    .filter((p) => p.level === "transaction")
+    .map((p, i) => ({ p, i }))
+    .sort((a, b) => promoCeiling(a.p) - promoCeiling(b.p) || a.i - b.i)
+    .map(({ p }) => p);
 
   const { types, applied } = applyItemPromos(lines, itemPromos);
   const itemCount = lines.reduce((s, l) => s + l.quantity, 0);

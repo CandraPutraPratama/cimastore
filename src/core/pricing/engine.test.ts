@@ -29,8 +29,8 @@ const KK: BrandPricingConfig = {
   splitMode: "auto",
   fee: { type: "per_item", amount: 2300, singleItemAmount: 4000 },
   promos: [
-    promo({ id: "kk-50", name: "Diskon 50%", level: "transaction", type: "percent", value: 50, appliesTo: "base_price", maxDiscount: 35000 }),
-    promo({ id: "kk-30k", name: "Potongan 30rb", level: "transaction", type: "fixed", value: 30000, appliesTo: "base_price", minSubtotal: 50000 }),
+    promo({ id: "kk-35", name: "Diskon 50% maks 35rb", level: "transaction", type: "percent", value: 50, appliesTo: "base_price", maxDiscount: 35000 }),
+    promo({ id: "kk-30", name: "Diskon 50% maks 30rb (min 50rb)", level: "transaction", type: "percent", value: 50, appliesTo: "base_price", maxDiscount: 30000, minSubtotal: 50000 }),
   ],
 };
 
@@ -65,47 +65,60 @@ const MIXUE: BrandPricingConfig = {
 };
 
 describe("Kopi Kenangan", () => {
-  it("1 minuman: diskon 50% harga dasar, fee 1 item Rp4.000", () => {
+  it("1 minuman di bawah 50rb: voucher maks 35rb, fee 1 item Rp4.000", () => {
     const order = priceOrder([line("mantan", 25000)], KK);
     expect(order.discount).toBe(12500);
+    expect(order.transactions[0].promo?.id).toBe("kk-35");
     expect(order.fee).toBe(4000);
     expect(order.total).toBe(16500);
   });
 
   it("tambahan Large tidak ikut didiskon, harga coret pakai harga Large asli", () => {
-    const order = priceOrder([line("mantan", 25000, 1, { options: 5000, compareAt: 35000 })], KK);
+    const order = priceOrder([line("mantan", 25000, 1, { options: 5000, compareAt: 31000 })], KK);
     expect(order.discount).toBe(12500);
     expect(order.subtotal - order.discount).toBe(17500);
-    expect(order.savings).toBe(35000 - 17500);
+    expect(order.savings).toBe(31000 - 17500);
   });
 
-  it("belanja Rp70.000 dapat potongan penuh Rp35.000 dalam 1 transaksi", () => {
+  it("harga normal 50rb-60rb: potongan sama, pakai voucher min 50rb (maks 30rb)", () => {
+    const order = priceOrder([line("mantan", 25000, 2)], KK);
+    expect(order.discount).toBe(25000);
+    expect(order.transactions).toHaveLength(1);
+    expect(order.transactions[0].promo?.id).toBe("kk-30");
+    expect(priceOrder([line("aren", 30000, 2)], KK).transactions[0].promo?.id).toBe("kk-30");
+  });
+
+  it("harga normal di atas 60rb: pakai voucher maks 35rb, penuh di 70rb", () => {
     const order = priceOrder([line("aren", 35000, 2)], KK);
     expect(order.discount).toBe(35000);
     expect(order.transactions).toHaveLength(1);
+    expect(order.transactions[0].promo?.id).toBe("kk-35");
   });
 
-  it("3 x Rp25.000 dipecah: potongan 30rb untuk 2 item + 50% untuk 1 item", () => {
+  it("di atas 70rb dipecah supaya tetap 50%, tidak pernah lebih", () => {
     const order = priceOrder([line("mantan", 25000, 3)], KK);
-    expect(order.splitMethod).toBe("exact");
-    expect(order.discount).toBe(30000 + 12500);
+    expect(order.discount).toBe(37500);
     expect(order.transactions.map((t) => [t.promo?.id, t.units[0].quantity])).toEqual([
-      ["kk-30k", 2],
-      ["kk-50", 1],
+      ["kk-30", 2],
+      ["kk-35", 1],
     ]);
-    expect(order.fee).toBe(3 * 2300);
+    const big = priceOrder([line("aren", 35000, 6)], KK);
+    expect(big.discount).toBe(105000);
+    expect(big.discount / big.subtotal).toBe(0.5);
   });
 
-  it("split_mode none: semua item dalam 1 transaksi", () => {
+  it("split_mode none: semua item dalam 1 transaksi, potongan mentok 35rb", () => {
     const order = priceOrder([line("mantan", 25000, 3)], { ...KK, splitMode: "none" });
     expect(order.discount).toBe(35000);
     expect(order.transactions).toHaveLength(1);
     expect(order.splitMethod).toBe("single");
   });
+});
 
-  it("memberi petunjuk kekurangan belanja untuk voucher Rp30.000", () => {
-    const order = priceOrder([line("mantan", 25000)], KK);
-    expect(order.hint).toEqual({ promoId: "kk-30k", promoName: "Potongan 30rb", amountNeeded: 25000, discount: 30000 });
+describe("petunjuk voucher", () => {
+  it("memberi petunjuk kekurangan belanja untuk voucher potongan tetap", () => {
+    const order = priceOrder([line("boba-sundae", 16000), line("lemonade", 18000)], MIXUE);
+    expect(order.hint).toEqual({ promoId: "mx-10k", promoName: "Potongan 10rb", amountNeeded: 14000, discount: 10000 });
   });
 });
 

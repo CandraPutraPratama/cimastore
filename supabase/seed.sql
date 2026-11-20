@@ -21,7 +21,7 @@ select b.id, p.name, p.level, p.type, p.value, p.scope, p.applies_to, p.max_disc
 from (
   values
     ('kopi-kenangan', 'Diskon 50% (maks Rp35.000)',   'transaction', 'percent', 50,    'all_items',     'base_price', 35000, null::int, null::int, null::int, null::int, 10),
-    ('kopi-kenangan', 'Potongan Rp30.000 (min Rp50.000)', 'transaction', 'fixed', 30000, 'all_items',     'base_price', null,  50000,     null,      null,      null,      20),
+    ('kopi-kenangan', 'Diskon 50% (maks Rp30.000, min Rp50.000)', 'transaction', 'percent', 50, 'all_items', 'base_price', 30000, 50000,  null,      null,      null,      20),
     ('fore',          'Diskon 25% (maks Rp50.000)',   'transaction', 'percent', 25,    'all_items',     'subtotal',   50000, null,      null,      null,      null,      10),
     ('chagee',        'Diskon 30% (1 item)',          'transaction', 'percent', 30,    'all_items',     'subtotal',   null,  null,      null,      1,         1,         10),
     ('chagee',        'Diskon 50% (2 item)',          'transaction', 'percent', 50,    'cheapest_item', 'subtotal',   null,  null,      2,         2,         null,      20),

@@ -6,7 +6,7 @@
  *
  * Output default: .snapshots/<brand>.json (tidak masuk git).
  */
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { CatalogSnapshotSchema } from "../src/core/catalog/snapshot";
 import { importers } from "../src/brands/registry";
@@ -22,6 +22,13 @@ async function main() {
   const raw: Record<string, unknown> = {};
   for (const [key, file] of Object.entries(importer.files)) {
     raw[key] = JSON.parse(await readFile(path.join(rawDir, file), "utf8"));
+  }
+  for (const [key, { dir, pattern }] of Object.entries(importer.dirs ?? {})) {
+    const entries: Record<string, unknown> = {};
+    for (const name of (await readdir(path.join(rawDir, dir))).sort()) {
+      if (pattern.test(name)) entries[name] = JSON.parse(await readFile(path.join(rawDir, dir, name), "utf8"));
+    }
+    raw[key] = entries;
   }
 
   const { snapshot, report } = importer.build(raw, new Date().toISOString());
