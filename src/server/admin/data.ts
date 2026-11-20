@@ -76,7 +76,7 @@ export async function getBrand(slug: string): Promise<AdminBrandDetail | null> {
   return data ? AdminBrandDetailSchema.parse(data) : null;
 }
 
-export async function updateBrand(slug: string, patch: Partial<BrandPatch> & { isActive?: boolean }): Promise<AdminBrand | null> {
+export async function updateBrand(slug: string, patch: Partial<BrandPatch> & { isActive?: boolean; logoUrl?: string | null }): Promise<AdminBrand | null> {
   const data = await rpc("admin_brand_update", { p_slug: slug, p_patch: patch });
   return data ? AdminBrandSchema.parse(data) : null;
 }

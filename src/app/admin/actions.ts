@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { parseBrandCreateForm, parseBrandForm, parseProductForm, parsePromoForm, parseSettingsForm, type FieldErrors, type FormValues } from "@/core/admin/forms";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { detectLogoType, logoKey, MAX_LOGO_BYTES } from "@/core/catalog/logo";
+import { PHOTO_CONTENT_TYPE } from "@/core/catalog/photos";
 import { buildSnapshotFromCsv, MAX_CSV_CHARS, type CsvIssue, type CsvPreview } from "@/core/catalog/csv";
 import { STATUS_LABEL, type OrderStatus } from "@/core/orders/status";
 import { loginWithPassword, logout, requireAdmin } from "@/server/admin/auth";
@@ -95,6 +98,30 @@ export async function saveBrandAction(slug: string, _: FormState | undefined, fo
   if (!updated) return { values, message: "Brand tidak ditemukan." };
   refreshAll();
   return { ok: true, values, message: "Pengaturan brand disimpan." };
+}
+
+export async function saveBrandLogoAction(slug: string, _: FormState | undefined, formData: FormData): Promise<FormState> {
+  await requireAdmin();
+  if (formData.get("aksi") === "hapus") {
+    const updated = await updateBrand(slug, { logoUrl: null });
+    if (!updated) return { message: "Brand tidak ditemukan." };
+    refreshAll();
+    return { ok: true, message: "Logo dihapus. Kartu brand kembali memakai huruf." };
+  }
+  const file = formData.get("logo");
+  if (!(file instanceof File) || file.size === 0) return { message: "Pilih file logo dulu." };
+  if (file.size > MAX_LOGO_BYTES) return { message: "Logo terlalu besar. Maksimal 1 MB." };
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const ext = detectLogoType(bytes);
+  if (!ext) return { message: "Format logo harus PNG, JPG, atau WebP." };
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  const hash = Array.from(new Uint8Array(digest).slice(0, 4), (b) => b.toString(16).padStart(2, "0")).join("");
+  const key = logoKey(slug, hash, ext);
+  await getCloudflareContext().env.FOTO.put(key, bytes, { httpMetadata: { contentType: PHOTO_CONTENT_TYPE[ext] } });
+  const updated = await updateBrand(slug, { logoUrl: `/foto/${key}` });
+  if (!updated) return { message: "Brand tidak ditemukan." };
+  refreshAll();
+  return { ok: true, message: "Logo disimpan." };
 }
 
 export async function setBrandActiveAction(slug: string, active: boolean): Promise<void> {

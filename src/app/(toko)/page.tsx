@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element -- logo statis kecil; optimasi gambar Next tidak dipakai di Workers. */
+import { BrandMark } from "@/components/BrandMark";
 import Link from "next/link";
 import { RecentOrders } from "@/components/order/RecentOrders";
 import { ServiceStatus } from "@/components/storefront/ServiceStatus";
@@ -67,13 +68,7 @@ export default async function Home() {
               const notReady = brand.productCount === 0 || (brand.outletMode === "catalog" && brand.outletCount === 0);
               const body = (
                 <>
-                  <span
-                    aria-hidden
-                    className="outline-letter grid size-14 shrink-0 place-items-center rounded-md border-[2.5px] border-ink text-[1.75rem]"
-                    style={{ background: brand.theme.accent ?? "var(--color-marigold)" }}
-                  >
-                    {brand.name.trim().charAt(0).toUpperCase()}
-                  </span>
+                  <BrandMark name={brand.name} logoUrl={brand.logoUrl} accent={brand.theme.accent} />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-3">
                       <span className="font-display text-xl font-semibold">{brand.name}</span>

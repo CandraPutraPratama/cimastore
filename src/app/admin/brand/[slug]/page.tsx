@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { describePromo } from "@/core/admin/types";
 import { promoMarginWarnings, brandWarnings } from "@/core/admin/warnings";
 import { deletePromoAction, setPromoActiveAction } from "../../actions";
+import { BrandLogoForm } from "@/components/admin/BrandLogoForm";
 import { BrandForm } from "@/components/admin/BrandForm";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { formatDateTime } from "@/components/admin/format";
@@ -49,6 +50,13 @@ export default async function BrandPage({ params, searchParams }: PageProps<"/ad
           ))}
         </ul>
       ) : null}
+
+      <section className={`${card} mb-6`} aria-labelledby="logo-brand">
+        <h2 id="logo-brand" className="mb-4 text-lg font-bold">
+          Logo brand
+        </h2>
+        <BrandLogoForm slug={brand.slug} name={brand.name} accent={brand.theme.accent} logoUrl={brand.logoUrl} />
+      </section>
 
       <section className={`${card} mb-6`} aria-labelledby="pengaturan-brand">
         <h2 id="pengaturan-brand" className="mb-4 text-lg font-bold">
