@@ -58,7 +58,7 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
   return (
     <main className="flex flex-1 flex-col pb-28">
       <header className="px-5 pt-5 pb-3">
-        <Link href={`/${menu.brand.slug}`} className="chip px-3 py-1 text-sm">
+        <Link href={`/${menu.brand.slug}`} className="chip px-3.5 py-2 text-sm">
           ← Ganti outlet
         </Link>
         <div className="mt-3 flex items-center gap-3">
@@ -86,7 +86,7 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
               <button
                 type="button"
                 onClick={() => jumpTo(c.id)}
-                className="chip px-3.5 py-1 text-sm whitespace-nowrap"
+                className="chip px-3.5 py-2 text-sm whitespace-nowrap"
               >
                 {c.name}
               </button>

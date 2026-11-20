@@ -12,7 +12,7 @@
 
   --color-ink: #2a1b12;
   --color-ink-soft: #6a5444;
-  --color-ink-faint: #7d6959;
+  --color-ink-faint: #735f50;
   --color-paper: #fffaee;
   --color-mist: #f3e8d0;
   --color-line: #dccaa6;
@@ -48,6 +48,24 @@ body {
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: 1.5;
+}
+
+/* Tap langsung tanpa jeda dobel-ketuk, dan kursor tangan di semua yang bisa diklik. */
+a,
+button,
+label,
+summary,
+select,
+input,
+textarea {
+  touch-action: manipulation;
+}
+button:not(:disabled),
+[role="button"],
+summary,
+select,
+label:has(input:not(:disabled)) {
+  cursor: pointer;
 }
 
 .toko h1,

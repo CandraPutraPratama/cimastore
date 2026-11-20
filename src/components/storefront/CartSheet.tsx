@@ -60,7 +60,7 @@ export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQ
           <h2 id="judul-keranjang" className="text-2xl font-semibold">
             Pesananmu
           </h2>
-          <button type="button" onClick={onClose} className="chip px-3 py-1 text-sm">
+          <button type="button" onClick={onClose} className="chip px-3.5 py-2 text-sm">
             Tutup
           </button>
         </div>
@@ -96,7 +96,7 @@ export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQ
                       type="button"
                       aria-label={`Kurangi ${row.name}`}
                       onClick={() => onQuantity(row.key, row.quantity - 1)}
-                      className="grid size-8 place-items-center rounded-full border-2 border-ink bg-paper text-lg"
+                      className="grid size-10 place-items-center rounded-full border-2 border-ink bg-paper text-lg"
                     >
                       −
                     </button>
@@ -106,7 +106,7 @@ export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQ
                       aria-label={`Tambah ${row.name}`}
                       onClick={() => onQuantity(row.key, row.quantity + 1)}
                       disabled={full || Boolean(row.problem)}
-                      className="grid size-8 place-items-center rounded-full border-2 border-ink bg-paper text-lg disabled:opacity-30"
+                      className="grid size-10 place-items-center rounded-full border-2 border-ink bg-paper text-lg disabled:opacity-30"
                     >
                       +
                     </button>

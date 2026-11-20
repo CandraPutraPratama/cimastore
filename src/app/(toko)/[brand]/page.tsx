@@ -18,7 +18,7 @@ export default async function BrandPage({ params }: PageProps<"/[brand]">) {
   return (
     <main className="flex flex-1 flex-col">
       <header className="border-b-[2.5px] border-ink bg-mist px-5 pt-5 pb-4">
-        <Link href="/" className="chip px-3 py-1 text-sm">
+        <Link href="/" className="chip px-3.5 py-2 text-sm">
           ← Ganti brand
         </Link>
         <div className="mt-3 flex items-center gap-3">
