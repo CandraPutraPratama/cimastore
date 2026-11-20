@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/pesanan/:path*", headers: privatePage },
       { source: "/:brand/:outlet/checkout", headers: privatePage },
+      { source: "/admin/:path*", headers: privatePage },
       { source: "/api/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
     ];
   },

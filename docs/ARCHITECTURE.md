@@ -1,6 +1,6 @@
 # Jasdor v2 - Arsitektur & Rencana Bangun
 
-Status: Tahap 0 sampai 3 selesai. Tahap 3: checkout, QRIS dengan nominal terisi, halaman status pesanan, pesan WhatsApp ke admin, notifikasi + tombol status Telegram, kedaluwarsa otomatis. Berikutnya Tahap 4 (panel admin).
+Status: Tahap 0 sampai 3 selesai, Tahap 4A (panel admin: login, pesanan, brand, fee, promo, tampilan menu, pengaturan) selesai. Berikutnya Tahap 4B (editor katalog, upload CSV, tambah brand baru dari admin).
 Tanggal: 21 November 2026
 
 ---
@@ -36,7 +36,7 @@ Semua data katalog diisi ulang dari nol oleh pemilik. Data v1 tidak dimigrasikan
 | Framework | Next.js (App Router) + TypeScript + Tailwind | Sudah dikuasai, cocok untuk mobile-first |
 | Hosting | Cloudflare Workers (OpenNext) | Gratis, domain sudah di Cloudflare |
 | Database | Supabase Postgres (project BARU, v1 tetap jalan) | Relasional, cocok untuk katalog dan pesanan |
-| Login admin | Supabase Auth (email + password) | Tidak perlu bikin sistem sesi sendiri seperti v1 |
+| Login admin | Password admin di pengaturan server + cookie sesi bertanda tangan HMAC | Satu pemilik; tanpa tabel pengguna; bisa dites penuh tanpa akses ke Supabase Auth (lihat keputusan Tahap 4) |
 | Foto | Cloudflare R2 | Murah, sudah dipakai di v1 |
 | Validasi | Zod | Satu skema untuk validasi input, import katalog, dan aturan harga |
 | Test | Vitest | Mesin harga dan importer wajib dites |
@@ -204,6 +204,18 @@ Akses halaman pesanan pakai token rahasia per pesanan (seperti v1), bukan cuma I
 - Pengaman: maksimal 3 pesanan belum dibayar per nomor WA dalam 1 jam; body request maksimal 32 KB; halaman pesanan & checkout `no-store`, `noindex`, `Referrer-Policy: no-referrer`.
 - Telegram: bot khusus v2 (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET`). Notifikasi berisi **panduan beli**: tiap transaksi beserta voucher dan item yang dibeli di transaksi itu. Webhook menolak request tanpa secret, dan hanya ID admin yang boleh menekan tombol. Webhook baru bisa dipasang setelah website online (`npm run telegram:webhook`).
 
+### Panel admin (Tahap 4A)
+
+- Alamat: `/admin` (pesanan), `/admin/brand`, `/admin/brand/[slug]` (+ `/promo/[id]`, `/menu`), `/admin/pengaturan`. Semua `no-store`, `noindex`, `no-referrer`. Layout admin lebar; halaman customer tetap kolom 480px lewat route group `src/app/(toko)/`.
+- **Login**: `ADMIN_PASSWORD` (min 12 karakter) dan `ADMIN_SESSION_SECRET` (acak, min 32 karakter) di `.env.local` / secret Cloudflare. Sesi = cookie `httpOnly`, `SameSite=Lax`, berlaku 7 hari, isinya `<kedaluwarsa>.<HMAC-SHA256>` (`src/core/admin/session.ts`). Mengganti `ADMIN_SESSION_SECRET` mengeluarkan semua sesi. Password salah ditunda 0,8 detik; pembatasan per IP menyusul di Tahap 6.
+- **Penjagaan**: setiap halaman DAN setiap server action memanggil `requireAdmin()` (`src/server/admin/auth.ts`). Layout saja bukan penjaga, karena form bisa dikirim langsung ke aksi.
+- **Pesanan**: daftar dengan filter (Perlu diproses, Belum dibayar, Selesai, Batal, Perlu refund, Semua), pencarian ID/nama/WA, segar otomatis tiap 15-20 detik. Detail menampilkan panduan beli per transaksi, rincian bayar, tombol status sesuai aturan `status.ts`, riwayat, dan kotak **Perlu refund** (tombol "Refund sudah dikirim"). Perubahan dari admin ikut memperbarui pesan Telegram.
+- **Brand**: ubah nama, warna, biaya jasa (tanpa / per item dengan tarif 1 item / per pesanan), mode pemecahan transaksi, maksimal item, urutan, aktif/nonaktif. **Promo**: tambah, ubah, aktif/nonaktif, hapus; semua field `PromoSchema` (jenis, persen/rupiah, cakupan, dasar harga, maksimal potongan, minimal belanja, rentang jumlah item, batas pakai, produk, periode dalam WIB). Form divalidasi dengan skema yang sama dengan mesin harga (`src/core/admin/forms.ts`), pesan salah per kolom.
+- **Peringatan margin** (`src/core/admin/warnings.ts`): biaya jasa vs potongan tetap. Voucher transaksi dibandingkan dengan biaya jasa transaksi terkecil yang boleh memakainya; promo produk dengan biaya per item. Brand aktif tanpa menu atau outlet juga diperingatkan. Hanya peringatan, tidak memblokir.
+- **Tampilan menu**: sembunyikan/tampilkan produk (`products.is_visible`, tidak ditimpa import ulang).
+- **Pengaturan**: hari buka/tentatif, jam, tutup darurat, pengumuman, nomor WA admin, batas waktu bayar, ganti QRIS statis (divalidasi CRC-nya, tidak ditampilkan ulang).
+- Database (`supabase/migrations/20261121000005_admin.sql`): `admin_orders_list`, `admin_order_events`, `admin_order_refund_done`, `admin_brands_list`, `admin_brand_get`, `admin_brand_update`, `admin_promo_save` / `_set_active` / `_delete`, `admin_settings_update`, `admin_products_list`, `admin_product_set_visible`. Semua hanya untuk `service_role`. Id produk di promo memakai id sumber, diubah ke id database di fungsi.
+
 ### Tampilan customer (Tahap 2)
 
 - Data dibaca lewat 3 fungsi SQL, masing-masing satu perjalanan ke database: `catalog_home`, `catalog_outlets`, `catalog_menu` (`supabase/migrations/20261121000001_catalog_read.sql`). Hak eksekusi hanya untuk `service_role`; browser tidak pernah memanggil Supabase.
@@ -239,8 +251,8 @@ Row Level Security aktif di semua tabel. Customer tidak mengakses Supabase langs
 ```
 src/
   app/                    halaman & API route (tipis, hanya memanggil modul di bawah)
-    (customer)/           beranda, [brand], [brand]/[outlet], bayar/[id], pesanan
-    admin/                pesanan, brand, katalog, import, pengaturan
+    (toko)/               beranda, [brand], [brand]/[outlet], checkout, pesanan/[id] (kolom 480px)
+    admin/                pesanan, brand (promo, menu), pengaturan; nanti katalog dan import
     api/
   core/                   logika bisnis murni, tanpa Next.js/Supabase
     pricing/              mesin harga + test
@@ -271,7 +283,8 @@ Aturan ketergantungan: `core/` tidak boleh import dari `app/`, `server/`, atau `
 | 1. Inti | Migrasi database, mesin harga + promo + test semua promo brand, skema `CatalogSnapshot`, importer dari format data pemilik | Test harga tiap promo cocok dengan contoh hitungan nyata |
 | 2. Katalog customer | Pilih brand, cari outlet, menu, sheet produk, keranjang | Bisa menyusun keranjang di HP |
 | 3. Checkout | Buat pesanan, halaman QRIS, pesan WA, Telegram, kedaluwarsa otomatis | Pesanan uji masuk dari awal sampai selesai |
-| 4. Admin | Login, panel pesanan, kelola brand dan aturan harga, editor katalog, upload CSV | Nambah brand uji tanpa ubah kode |
+| 4A. Admin | Login, panel pesanan, kelola brand, fee, promo, tampilan menu, pengaturan situs | Selesai: alur pesanan dan promo diuji end-to-end |
+| 4B. Admin katalog | Tambah brand baru, editor produk dan harga, upload CSV | Nambah brand uji tanpa ubah kode |
 | 5. Brand | Import data KK, Fore, Chagee, Chatime, Mixue dari data pemilik; McD (menu saja) menyusul | Semua brand target tampil |
 | 6. Go-live | Rate limit, header keamanan, Lighthouse, runbook, deploy ke subdomain uji, lalu pindah ke `jasdor.cimagroup.my.id` | v2 menggantikan v1 |
 
@@ -310,6 +323,12 @@ Catatan McD: tanpa data outlet (customer mengetik outlet sendiri). Menunya punya
 - Nomor WA admin sama dengan v1 (6287793420768).
 - Format pesan WhatsApp mengikuti v1 (wajib lampirkan foto bukti bayar, link pantau pesanan).
 
+### Diputuskan saat Tahap 4 (21 Nov 2026)
+
+- Login admin memakai password di pengaturan server + cookie sesi bertanda tangan, bukan Supabase Auth. Alasan: hanya satu admin (pemilik), tidak ada tabel pengguna, dan seluruh alurnya bisa dites penuh tanpa akses ke layanan Supabase Auth. Bila nanti butuh lebih dari satu admin, ganti `src/server/admin/auth.ts` (halaman dan aksi hanya memanggil `requireAdmin()`).
+- Menu yang disembunyikan admin tetap tersembunyi setelah import ulang (import tidak menyentuh `products.is_visible`).
+- Menandai refund selesai dicatat di riwayat pesanan; pengiriman uangnya tetap manual oleh pemilik.
+
 ### Masih terbuka
 
 1. Mixue: aturan minimal belanja Rp40.000 terhadap Boba Sundae (menunggu data Mixue). Sementara mesin harga menghitung minimal belanja setelah potongan promo item.
@@ -318,3 +337,4 @@ Catatan McD: tanpa data outlet (customer mengetik outlet sendiri). Menunya punya
 4. Uji bayar sungguhan QRIS bernominal dari beberapa aplikasi (GoPay, DANA, m-banking) sebelum go-live.
 5. Bot Telegram v2 + pemasangan webhook menunggu website online di subdomain uji (Tahap 6). Penjadwal `expire-orders` (GitHub Actions) juga di Tahap 6.
 6. Checkout McD (outlet diketik customer) menyusul bersama data menu McD (Tahap 5).
+7. Tahap 4B: tambah brand baru, editor produk dan harga, upload CSV dari admin (import saat ini hanya lewat `npm run db:import` di laptop).
