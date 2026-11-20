@@ -8,8 +8,9 @@
  * Folder default: <folder data brand>/foto (contoh Chagee/foto). Folder lain boleh diberikan
  * sebagai argumen ketiga. Nama bucket dari R2_BUCKET (default jasdor-v2-foto).
  *
- * Aman diulang: foto yang isinya tidak berubah dilewati. Foto yang diganti mendapat alamat baru
- * (hash isi ada di kunci), jadi cache tidak menyajikan foto lama.
+ * Aman diulang: foto selalu diunggah ulang ke tujuan yang dipilih (R2 sungguhan atau simulasi
+ * lokal, dua tempat yang terpisah), dengan kunci yang sama bila isinya sama. Foto yang diganti
+ * mendapat alamat baru (hash isi ada di kunci), jadi cache tidak menyajikan foto lama.
  */
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -55,8 +56,8 @@ async function main() {
   try {
     console.log(`Database: ${target}`);
     console.log(`Folder: ${folder} (${files.length} berkas)`);
-    const products = await sql<{ external_id: string; name: string; image_source_url: string | null; image_key: string | null }[]>`
-      select p.external_id, p.name, p.image_source_url, p.image_key
+    const products = await sql<{ external_id: string; name: string; image_source_url: string | null }[]>`
+      select p.external_id, p.name, p.image_source_url
       from public.products p join public.brands b on b.id = p.brand_id
       where b.slug = ${brand} and p.is_active`;
     if (products.length === 0) throw new Error(`Brand "${brand}" belum punya produk. Impor menunya dulu.`);
@@ -65,24 +66,18 @@ async function main() {
       files,
       products.map<PhotoProduct>((p) => ({ externalId: p.external_id, name: p.name, imageSourceUrl: p.image_source_url })),
     );
-    const currentKey = new Map(products.map((p) => [p.external_id, p.image_key]));
 
     const jobs: Array<{ externalId: string; fileName: string; key: string; type: string }> = [];
-    let unchanged = 0;
     for (const m of result.matched) {
       const bytes = await readFile(path.join(folder, m.fileName));
       const hash = createHash("sha256").update(bytes).digest("hex");
       const ext = photoExtension(m.fileName)!;
       const key = photoKey(brand, m.externalId, hash, ext);
-      if (currentKey.get(m.externalId) === key) {
-        unchanged++;
-        continue;
-      }
       jobs.push({ externalId: m.externalId, fileName: m.fileName, key, type: PHOTO_CONTENT_TYPE[ext === ("jpeg" as string) ? "jpg" : ext] });
     }
 
     console.log(`\nCocok: ${result.matched.length} foto (${result.matched.filter((m) => m.by === "kode").length} lewat kode, ${result.matched.filter((m) => m.by === "nama").length} lewat nama).`);
-    console.log(`Perlu diunggah: ${jobs.length}. Sudah terunggah dan tidak berubah: ${unchanged}.`);
+    console.log(`Akan diunggah: ${jobs.length} foto.`);
     for (const f of result.unmatchedFiles) console.log(`  ! tidak cocok produk mana pun: ${f}`);
     for (const a of result.ambiguous) console.log(`  ! lebih dari satu berkas untuk produk ${a.externalId}: ${a.fileNames.join(", ")}`);
     for (const n of result.productsWithoutPhoto) console.log(`  ! produk tanpa foto: ${n}`);
@@ -91,7 +86,7 @@ async function main() {
       return;
     }
     if (jobs.length === 0) {
-      console.log("\nTidak ada yang perlu diunggah.");
+      console.log("\nTidak ada foto yang cocok untuk diunggah.");
       return;
     }
 
@@ -119,7 +114,7 @@ async function main() {
       }
     };
     await Promise.all(Array.from({ length: local ? 2 : 4 }, worker));
-    console.log(`\nSelesai: ${done} foto terunggah dan tertaut${failed ? `, ${failed} gagal (jalankan lagi, yang sudah berhasil dilewati)` : ""}.`);
+    console.log(`\nSelesai: ${done} foto terunggah dan tertaut${failed ? `, ${failed} gagal (jalankan lagi perintah yang sama)` : ""}.`);
     if (failed) process.exitCode = 1;
   } finally {
     await sql.end();
