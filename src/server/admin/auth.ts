@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import {
   MIN_PASSWORD_LENGTH,
@@ -8,6 +8,7 @@ import {
   passwordMatches,
   verifySessionToken,
 } from "@/core/admin/session";
+import { rpc } from "../db/rpc";
 import { env } from "../config";
 
 /**
@@ -46,15 +47,51 @@ export async function requireAdmin(): Promise<void> {
 export type LoginResult = { ok: true } | { ok: false; message: string };
 
 const FAILURE_DELAY_MS = 800;
+const MAX_FAILS = 5;
+
+type Gate = { locked: boolean; retryAfter: number };
+
+/** Kunci pembatas: sidik jari alamat IP, bukan IP-nya sendiri. */
+async function attemptKey(): Promise<string> {
+  const h = await headers();
+  const ip = h.get("cf-connecting-ip") ?? h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "tanpa-ip";
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`login:${ip}`));
+  return Array.from(new Uint8Array(digest).slice(0, 12), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function gate(key: string, event: "check" | "fail" | "ok"): Promise<Gate> {
+  const data = await rpc<Gate>("admin_login_gate", { p_key: key, p_event: event, p_max: MAX_FAILS });
+  return { locked: data?.locked === true, retryAfter: data?.retryAfter ?? 0 };
+}
+
+function lockedMessage(retryAfter: number): string {
+  return `Terlalu banyak percobaan. Coba lagi ${Math.max(1, Math.ceil(retryAfter / 60))} menit lagi.`;
+}
 
 export async function loginWithPassword(password: string): Promise<LoginResult> {
   const config = adminConfig();
   if (!config.ok) return { ok: false, message: config.problem };
+  // Gagal tertutup: kalau pembatas tidak bisa dicek, login ditolak daripada dibiarkan tanpa batas.
+  let key: string;
+  try {
+    key = await attemptKey();
+    const state = await gate(key, "check");
+    if (state.locked) return { ok: false, message: lockedMessage(state.retryAfter) };
+  } catch {
+    return { ok: false, message: "Login sedang tidak bisa dicek. Coba lagi sebentar." };
+  }
   if (!(await passwordMatches(config.password, password.slice(0, 200)))) {
-    // Jeda kecil memperlambat tebak-tebakan. Pembatasan per alamat IP menyusul di Tahap 6.
+    // Jeda kecil memperlambat tebak-tebakan; batas percobaan per alamat ada di admin_login_gate.
     await new Promise((resolve) => setTimeout(resolve, FAILURE_DELAY_MS));
+    try {
+      const state = await gate(key, "fail");
+      if (state.locked) return { ok: false, message: lockedMessage(state.retryAfter) };
+    } catch {
+      /* hitungan gagal tercatat; pesan salah tetap ditampilkan */
+    }
     return { ok: false, message: "Password salah." };
   }
+  await gate(key, "ok").catch(() => undefined);
   const token = await createSessionToken(config.secret, new Date());
   (await cookies()).set(COOKIE_NAME, token, {
     httpOnly: true,
