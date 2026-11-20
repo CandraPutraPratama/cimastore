@@ -20,6 +20,7 @@
     "db:import": "tsx scripts/db-import.ts",
     "db:import:all": "tsx scripts/db-import.ts --all",
     "foto:upload": "tsx scripts/foto-upload.ts",
+    "logo:upload": "tsx scripts/logo-upload.ts",
     "telegram:webhook": "tsx scripts/telegram-webhook.ts"
   },
   "dependencies": {
