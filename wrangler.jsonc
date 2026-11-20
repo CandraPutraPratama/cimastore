@@ -14,7 +14,7 @@
   ],
   "observability": {
     "logs": { "enabled": true }
-  }
-  // Domain uji (subdomain) ditambahkan saat deploy pertama, contoh:
-  // "routes": [{ "pattern": "v2.cimagroup.my.id", "custom_domain": true }]
+  },
+  // Domain uji. Cloudflare membuat catatan DNS dan sertifikatnya sendiri saat deploy.
+  "routes": [{ "pattern": "v2.cimagroup.my.id", "custom_domain": true }]
 }
