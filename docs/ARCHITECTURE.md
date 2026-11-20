@@ -160,7 +160,7 @@ npm run snapshot -- chagee ./Chagee
 npm run snapshot -- chatime ./Chatime
 ```
 
-Aturan importer KK (`src/brands/kopi-kenangan/importer.ts`): kategori Baru!/Coffee/Non Coffee/Kenangan Frappe/Kenangan Toast/Food; outlet Signature/Heritage/Chigo tidak dilayani; Seliter, Chigo/ChiMate/KrunChi, FLIP, air mineral disembunyikan; Jumbo tidak dijual; Large +5.000, Juwara +3.000, Oatside +3.000, Syrup/Sauce +6.000, Topping +6.000; Whipped Cream gratis pilih 1 khusus Frappe; harga coret Large/Juwara/Oatside dari kombinasi SKU asli KK. Minuman tanpa data kustomisasi tidak dijual (dilaporkan), makanan dijual tanpa opsi.
+Aturan importer KK (`src/brands/kopi-kenangan/importer.ts`): kategori Baru!/Coffee/Non Coffee/Kenangan Frappe/Kenangan Toast/Food; outlet Signature/Heritage/Chigo tidak dilayani; Seliter, Chigo/ChiMate/KrunChi, FLIP, air mineral disembunyikan; Jumbo tidak dijual; Large +5.000, Juwara +3.000, Oatside +3.000, Syrup/Sauce +6.000, Topping +6.000; Whipped Cream gratis pilih 1 khusus Frappe; harga coret Large/Juwara/Oatside dari kombinasi SKU asli KK. Minuman tanpa data kustomisasi tidak dijual (dilaporkan), makanan (kategori Food/Kenangan Toast, atau produk yang di data kustomisasi tidak punya pilihan sama sekali, seperti roti baru di kategori Baru!) dijual tanpa opsi.
 
 Fore (`src/brands/fore/importer.ts`): kustomisasi dicocokkan setelah awalan Iced/Hot dibuang; pilihan es hanya untuk produk Iced; Large +7.000.
 
@@ -203,7 +203,7 @@ Akses halaman pesanan pakai token rahasia per pesanan (seperti v1), bukan cuma I
 - Data dibaca lewat 3 fungsi SQL, masing-masing satu perjalanan ke database: `catalog_home`, `catalog_outlets`, `catalog_menu` (`supabase/migrations/20261121000001_catalog_read.sql`). Hak eksekusi hanya untuk `service_role`; browser tidak pernah memanggil Supabase.
 - Server memanggilnya lewat `src/server/db/rpc.ts`: API Supabase bila `SUPABASE_URL` + `SUPABASE_SECRET_KEY` ada; koneksi Postgres langsung (`DATABASE_URL`) hanya untuk development tanpa API.
 - Halaman: `/` (brand), `/[brand]` (pilih outlet), `/[brand]/[outlet]` (menu). Keranjang disimpan di browser per brand+outlet dan selalu dihitung ulang dari menu terbaru dengan `priceLine` + `priceOrder` (logika yang sama dengan server).
-- Desain: satu kolom ala aplikasi HP (maks 480px), font Plus Jakarta Sans (dibundel, tanpa Google Fonts), tinta biru tua, aksen marigold, hijau khusus angka hemat. Satu elemen menonjol: angka "Kamu hemat" di keranjang berbentuk struk.
+- Desain: satu kolom ala aplikasi HP (maks 480px), font Plus Jakarta Sans (dibundel, tanpa Google Fonts), tinta biru tua, aksen marigold, hijau khusus angka hemat. Satu elemen menonjol: angka "Kamu hemat" di keranjang berbentuk struk, dihitung jujur: harga asli di outlet dikurangi total yang dibayar (biaya jasa ikut dihitung).
 - Uji lokal: 20.327 harga & opsi dari `catalog_menu` dicocokkan dengan mesin harga, 0 beda. `catalog_menu` ±7 ms, `catalog_outlets` ±9 ms di Postgres lokal. Menu terbesar (Chatime) ±36 KB setelah kompresi.
 - Makanan KK dijual tanpa pilihan (data sumber menempelkan add-on minuman ke 6 roti).
 

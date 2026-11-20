@@ -353,7 +353,10 @@ export function buildKopiKenanganSnapshot(
         matchedByName++;
       }
     }
-    const isFood = [...info.categories].some((c) => FOOD_CATEGORIES.has(c));
+    // Makanan: kategori Food/Toast, atau produk tanpa satu pun pilihan (roti baru di kategori "Baru!").
+    const isFood =
+      [...info.categories].some((c) => FOOD_CATEGORIES.has(c)) ||
+      (custom !== undefined && Object.values(custom.options).every((v) => v.length === 0));
     if (!custom && !isFood) {
       missingCustomization.push({ name, outlets: info.outlets });
       continue;

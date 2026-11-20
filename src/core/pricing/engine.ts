@@ -54,7 +54,7 @@ export interface PricedOrder {
   total: number;
   /** Jumlah harga asli brand (harga coret). */
   compareAtTotal: number;
-  /** "Kamu hemat": dari harga asli, tanpa memperhitungkan fee. */
+  /** "Kamu hemat": selisih harga asli di outlet dengan yang benar-benar dibayar (fee ikut dihitung). */
   savings: number;
   transactions: PricedTransaction[];
   itemPromos: AppliedItemPromo[];
@@ -502,7 +502,7 @@ export function priceOrder(
     fee,
     total: subtotal - discount + fee,
     compareAtTotal,
-    savings: Math.max(0, compareAtTotal - (subtotal - discount)),
+    savings: Math.max(0, compareAtTotal - (subtotal - discount + fee)),
     transactions,
     itemPromos: applied,
     splitMethod,

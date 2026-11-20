@@ -49,6 +49,14 @@ const customization = {
       addons,
       combinations: [],
     },
+    // Roti baru di kategori "Baru!" saja: tanpa pilihan apa pun, jadi diperlakukan sebagai makanan.
+    "8": {
+      productId: 8,
+      name: "Triple Cheese Bagel",
+      options: { temperatures: [], sizes: [], sugarLevels: [], coffeeBeans: [], dairyChoices: [], iceLevels: [] },
+      addons,
+      combinations: [],
+    },
     // ID berbeda dengan menu (99 vs 3), dicocokkan lewat nama.
     "99": {
       productId: 99,
@@ -74,7 +82,7 @@ const raw = {
   customization,
   menus: {
     "menu_10.json": menu([
-      { cat: "Baru!", list: [item(1, "Kopi Kenangan Mantan", 22000)] },
+      { cat: "Baru!", list: [item(1, "Kopi Kenangan Mantan", 22000), item(8, "Triple Cheese Bagel", 22000)] },
       { cat: "Coffee", list: [item(1, "Kopi Kenangan Mantan", 22000), item(3, "Americano", 18000), item(4, "Mocha Latte", 25000), item(5, "Seliter Kenangan - Latte", 100000)] },
       { cat: "Kenangan Frappe", list: [item(2, "Mantan Frappe", 31000, { isSoldOut: true })] },
       { cat: "Food", list: [item(6, "Chocolate Croissant", 19000)] },
@@ -93,7 +101,7 @@ describe("importer Kopi Kenangan", () => {
     const { snapshot, report } = build();
     const snap = CatalogSnapshotSchema.parse(snapshot);
     expect(snap.outlets.map((o) => o.code)).toEqual(["LIPPO-PURI", "BANDARA"]);
-    expect(snap.products.map((p) => p.name).sort()).toEqual(["Americano", "Chocolate Croissant", "Kopi Kenangan Mantan", "Mantan Frappe"]);
+    expect(snap.products.map((p) => p.name).sort()).toEqual(["Americano", "Chocolate Croissant", "Kopi Kenangan Mantan", "Mantan Frappe", "Triple Cheese Bagel"]);
     expect(report.counts).toMatchObject({ hiddenByRule: 1, missingCustomization: 1 });
     expect(report.warnings.join("\n")).toContain("Mocha Latte (1 outlet)");
     expect(report.warnings.join("\n")).toContain("1 outlet Kenangan Signature/Heritage/Chigo");
@@ -141,6 +149,7 @@ describe("importer Kopi Kenangan", () => {
     expect(resolveProductFromSnapshot(snap, "BANDARA", "1")!.basePrice).toBe(32000);
     expect(resolveProductFromSnapshot(snap, "BANDARA", "6")!.status).toBe("hidden");
     expect(resolveProductFromSnapshot(snap, "LIPPO-PURI", "6")!.optionGroups).toEqual([]);
+    expect(resolveProductFromSnapshot(snap, "LIPPO-PURI", "8")!.optionGroups).toEqual([]);
     const bandara = snap.outlets.find((o) => o.code === "BANDARA")!;
     expect(bandara.lat).toBeUndefined();
     expect(snap.outlets[0].hours).toEqual({ open: "10:00", close: "21:45" });

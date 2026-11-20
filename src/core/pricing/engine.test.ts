@@ -77,7 +77,9 @@ describe("Kopi Kenangan", () => {
     const order = priceOrder([line("mantan", 25000, 1, { options: 5000, compareAt: 31000 })], KK);
     expect(order.discount).toBe(12500);
     expect(order.subtotal - order.discount).toBe(17500);
-    expect(order.savings).toBe(31000 - 17500);
+    // Hemat = harga asli di outlet - yang benar-benar dibayar (termasuk fee Rp4.000).
+    expect(order.total).toBe(21500);
+    expect(order.savings).toBe(31000 - 21500);
   });
 
   it("harga normal 50rb-60rb: potongan sama, pakai voucher min 50rb (maks 30rb)", () => {
