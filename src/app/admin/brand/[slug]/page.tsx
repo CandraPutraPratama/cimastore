@@ -31,9 +31,14 @@ export default async function BrandPage({ params, searchParams }: PageProps<"/ad
         </Link>
       </p>
       <PageTitle title={brand.name}>
-        <Link href={`/admin/brand/${brand.slug}/menu`} className={btn}>
-          Atur tampilan menu
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href={`/admin/brand/${brand.slug}/impor`} className={btn}>
+            Impor menu CSV
+          </Link>
+          <Link href={`/admin/brand/${brand.slug}/menu`} className={btn}>
+            Atur menu
+          </Link>
+        </div>
       </PageTitle>
       <Flash code={typeof query.info === "string" ? query.info : undefined} />
 

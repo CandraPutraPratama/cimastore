@@ -2,6 +2,7 @@ import { z } from "zod";
 import { normalizeWhatsapp } from "../orders/checkout";
 import { FeeRulesSchema, PromoSchema, SplitModeSchema, type FeeRules, type SplitMode } from "../pricing/rules";
 import { inspectQris, QrisError } from "../qris/qris";
+import { slugify } from "../catalog/csv";
 import { localInputToIso } from "./datetime";
 
 /**
@@ -294,4 +295,85 @@ export function parseSettingsForm(values: FormValues): Parsed<SettingsPatch> {
       ...(qris ? { qrisPayload: qris } : {}),
     },
   };
+}
+
+// -----------------------------------------------------------------------------
+// Brand baru
+// -----------------------------------------------------------------------------
+
+export interface BrandCreate {
+  slug: string;
+  name: string;
+  prefix: string;
+  accent: string;
+  outletMode: "catalog" | "customer_input";
+}
+
+/** Alamat yang tidak boleh dipakai brand karena bentrok dengan halaman lain. */
+const RESERVED_SLUGS = new Set(["baru", "admin", "api", "pesanan", "bayar", "checkout", "_next"]);
+
+export function parseBrandCreateForm(values: FormValues): Parsed<BrandCreate> {
+  const errors: FieldErrors = {};
+  const name = one(values, "name").replace(/\s+/g, " ");
+  if (name.length < 1 || name.length > 60) errors.name = "Nama brand 1 sampai 60 huruf.";
+
+  const slug = (one(values, "slug") || slugify(name)).toLowerCase();
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug) || slug.length > 40) errors.slug = "Alamat hanya huruf kecil, angka, dan tanda hubung (maksimal 40), contoh: janji-jiwa.";
+  else if (RESERVED_SLUGS.has(slug)) errors.slug = "Alamat ini dipakai sistem. Pilih yang lain.";
+
+  const prefix = one(values, "prefix").toUpperCase();
+  if (!/^[A-Z]{2,3}$/.test(prefix)) errors.prefix = "Kode pesanan 2 atau 3 huruf, contoh: JJ.";
+
+  const accent = one(values, "accent") || "#444444";
+  if (!/^#[0-9a-fA-F]{6}$/.test(accent)) errors.accent = "Warna harus berformat #RRGGBB, contoh #C8102E.";
+
+  const outletMode = one(values, "outletMode") || "catalog";
+  if (outletMode !== "catalog" && outletMode !== "customer_input") errors.outletMode = "Pilih cara customer menentukan outlet.";
+
+  if (Object.keys(errors).length > 0) return fail(errors);
+  return { ok: true, value: { slug, name, prefix, accent: accent.toUpperCase(), outletMode: outletMode as BrandCreate["outletMode"] } };
+}
+
+// -----------------------------------------------------------------------------
+// Produk
+// -----------------------------------------------------------------------------
+
+export interface ProductToSave {
+  id: string | null;
+  name: string;
+  category: string;
+  description: string;
+  imageUrl: string;
+  /** null = harga tidak diubah (brand dengan harga berbeda per outlet). */
+  price: number | null;
+}
+
+export function parseProductForm(values: FormValues, options: { id: string | null; priceEditable: boolean }): Parsed<ProductToSave> {
+  const errors: FieldErrors = {};
+  const name = one(values, "name").replace(/\s+/g, " ");
+  if (name.length < 1 || name.length > 120) errors.name = "Nama produk 1 sampai 120 huruf.";
+  const category = one(values, "category").replace(/\s+/g, " ");
+  if (category.length < 1 || category.length > 60) errors.category = "Kategori 1 sampai 60 huruf.";
+  const description = one(values, "description");
+  if (description.length > 300) errors.description = "Deskripsi maksimal 300 huruf.";
+  const imageUrl = one(values, "imageUrl");
+  if (imageUrl) {
+    let ok = imageUrl.length <= 500;
+    try {
+      const u = new URL(imageUrl);
+      ok = ok && (u.protocol === "https:" || u.protocol === "http:");
+    } catch {
+      ok = false;
+    }
+    if (!ok) errors.imageUrl = "Isi alamat web foto yang lengkap, diawali https://.";
+  }
+
+  let price: number | null = null;
+  if (options.priceEditable) {
+    price = readInt(values, "price", "Harga", errors, { min: 0, max: 5_000_000 });
+    if (price === null && !errors.price) errors.price = "Isi harga (boleh 0).";
+  }
+
+  if (Object.keys(errors).length > 0) return fail(errors);
+  return { ok: true, value: { id: options.id, name, category, description, imageUrl, price } };
 }

@@ -32,4 +32,6 @@ export const FLASH: Record<string, { text: string; tone: "ok" | "warn" }> = {
   "promo-aktif": { text: "Promo diaktifkan.", tone: "ok" },
   "promo-nonaktif": { text: "Promo dinonaktifkan.", tone: "ok" },
   "promo-dihapus": { text: "Promo dihapus.", tone: "ok" },
+  "brand-dibuat": { text: "Brand dibuat dan masih nonaktif. Isi menu dan outletnya (impor CSV atau tambah produk), atur biaya jasa, lalu aktifkan.", tone: "ok" },
+  "produk-disimpan": { text: "Produk disimpan.", tone: "ok" },
 };

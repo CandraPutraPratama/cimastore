@@ -1,6 +1,6 @@
 # Jasdor v2 - Arsitektur & Rencana Bangun
 
-Status: Tahap 0 sampai 3 selesai, Tahap 4A (panel admin: login, pesanan, brand, fee, promo, tampilan menu, pengaturan) selesai. Berikutnya Tahap 4B (editor katalog, upload CSV, tambah brand baru dari admin).
+Status: Tahap 0 sampai 4 selesai. Tahap 4: panel admin (login, pesanan, brand, fee, promo, pengaturan) dan kelola katalog (brand baru, editor produk, impor CSV). Berikutnya Tahap 5 (data Mixue dan McD, foto Chagee, aturan min 40k Mixue, fee) lalu Tahap 6 (go-live).
 Tanggal: 21 November 2026
 
 ---
@@ -216,6 +216,17 @@ Akses halaman pesanan pakai token rahasia per pesanan (seperti v1), bukan cuma I
 - **Pengaturan**: hari buka/tentatif, jam, tutup darurat, pengumuman, nomor WA admin, batas waktu bayar, ganti QRIS statis (divalidasi CRC-nya, tidak ditampilkan ulang).
 - Database (`supabase/migrations/20261121000005_admin.sql`): `admin_orders_list`, `admin_order_events`, `admin_order_refund_done`, `admin_brands_list`, `admin_brand_get`, `admin_brand_update`, `admin_promo_save` / `_set_active` / `_delete`, `admin_settings_update`, `admin_products_list`, `admin_product_set_visible`. Semua hanya untuk `service_role`. Id produk di promo memakai id sumber, diubah ke id database di fungsi.
 
+### Kelola katalog (Tahap 4B)
+
+- **Brand baru** (`/admin/brand/baru`): nama, alamat (otomatis dari nama), kode pesanan 2-3 huruf (unik), warna, dan mode outlet (`catalog` atau `customer_input`). Dibuat nonaktif; alamat yang bentrok dengan halaman sistem (`baru`, `admin`, `api`, ...) ditolak.
+- **Editor produk** (`/admin/brand/[slug]/menu/[id]`, `baru` untuk tambah): nama, kategori (ketik baru = kategori baru), deskripsi, foto, harga. Harga hanya bisa diubah bila brand punya paling banyak satu price list (harga seragam). Brand dengan harga berbeda per outlet (KK, Fore, Chatime, Chagee) menampilkan rentang harga saja; harganya diubah lewat impor data brand.
+- **Impor CSV** (`/admin/brand/[slug]/impor`): dua langkah. "Periksa file" membaca dan memvalidasi (pesan per baris) lalu menampilkan pratinjau tanpa mengubah data; "Impor sekarang" memeriksa ulang di server lalu menulis. Kolom menu: kategori, nama, harga (wajib), deskripsi, foto, kode (opsional). Kolom outlet: kode, nama (wajib), kota, alamat, buka, tutup, lat, lng. Pemisah koma/titik koma/tab dikenali otomatis; harga "35.000" / "Rp35.000" / "35000".
+  - Impor ulang tidak menggandakan: kategori dan produk dicocokkan dengan nama (tanpa beda huruf besar/kecil) atau kolom `kode`, lalu memakai id lama.
+  - Opsi "nonaktifkan yang tidak ada di file" (default aktif) memakai mekanisme yang sama dengan importer laptop: yang hilang hanya `is_active = false`, riwayat pesanan aman.
+  - Tanpa file outlet, outlet yang ada tidak disentuh. Brand `customer_input` otomatis punya satu outlet internal berkode `menu` (nama = "Menu") supaya menunya bisa dialamatkan; checkout McD memakainya di Tahap 5.
+  - Tidak menyentuh grup opsi (ukuran, es, topping). Brand dengan beberapa price list ditolak.
+- **Database** (`supabase/migrations/20261121000006_admin_catalog.sql`): `admin_brand_create`, `admin_catalog_import`, `admin_catalog_context`, `admin_import_runs`, `admin_product_get`, `admin_product_save`. `admin_catalog_import` adalah port SQL dari `src/server/db/import-catalog.ts` (dipakai CLI di laptop). Keduanya diuji menghasilkan data dan statistik identik, termasuk impor ulang (hapus produk, ganti harga, nonaktifkan outlet). Opsi `p_options`: `deactivateMissing`, `syncOutlets`, `rewritePriceLists`, `replaceOptions`.
+
 ### Tampilan customer (Tahap 2)
 
 - Data dibaca lewat 3 fungsi SQL, masing-masing satu perjalanan ke database: `catalog_home`, `catalog_outlets`, `catalog_menu` (`supabase/migrations/20261121000001_catalog_read.sql`). Hak eksekusi hanya untuk `service_role`; browser tidak pernah memanggil Supabase.
@@ -252,7 +263,7 @@ Row Level Security aktif di semua tabel. Customer tidak mengakses Supabase langs
 src/
   app/                    halaman & API route (tipis, hanya memanggil modul di bawah)
     (toko)/               beranda, [brand], [brand]/[outlet], checkout, pesanan/[id] (kolom 480px)
-    admin/                pesanan, brand (promo, menu), pengaturan; nanti katalog dan import
+    admin/                pesanan, brand (baru, promo, menu, impor CSV), pengaturan
     api/
   core/                   logika bisnis murni, tanpa Next.js/Supabase
     pricing/              mesin harga + test
@@ -284,7 +295,7 @@ Aturan ketergantungan: `core/` tidak boleh import dari `app/`, `server/`, atau `
 | 2. Katalog customer | Pilih brand, cari outlet, menu, sheet produk, keranjang | Bisa menyusun keranjang di HP |
 | 3. Checkout | Buat pesanan, halaman QRIS, pesan WA, Telegram, kedaluwarsa otomatis | Pesanan uji masuk dari awal sampai selesai |
 | 4A. Admin | Login, panel pesanan, kelola brand, fee, promo, tampilan menu, pengaturan situs | Selesai: alur pesanan dan promo diuji end-to-end |
-| 4B. Admin katalog | Tambah brand baru, editor produk dan harga, upload CSV | Nambah brand uji tanpa ubah kode |
+| 4B. Admin katalog | Tambah brand baru, editor produk dan harga, impor CSV | Selesai: brand uji dibuat dan diisi lewat admin tanpa ubah kode |
 | 5. Brand | Import data KK, Fore, Chagee, Chatime, Mixue dari data pemilik; McD (menu saja) menyusul | Semua brand target tampil |
 | 6. Go-live | Rate limit, header keamanan, Lighthouse, runbook, deploy ke subdomain uji, lalu pindah ke `jasdor.cimagroup.my.id` | v2 menggantikan v1 |
 
@@ -337,4 +348,5 @@ Catatan McD: tanpa data outlet (customer mengetik outlet sendiri). Menunya punya
 4. Uji bayar sungguhan QRIS bernominal dari beberapa aplikasi (GoPay, DANA, m-banking) sebelum go-live.
 5. Bot Telegram v2 + pemasangan webhook menunggu website online di subdomain uji (Tahap 6). Penjadwal `expire-orders` (GitHub Actions) juga di Tahap 6.
 6. Checkout McD (outlet diketik customer) menyusul bersama data menu McD (Tahap 5).
-7. Tahap 4B: tambah brand baru, editor produk dan harga, upload CSV dari admin (import saat ini hanya lewat `npm run db:import` di laptop).
+7. Data brand lama (KK, Fore, Chagee, Chatime) masih diimpor lewat `npm run db:import` di laptop karena punya opsi dan harga per outlet; impor CSV di admin untuk brand sederhana (Mixue, McD, brand baru).
+8. Foto produk dari CSV memakai alamat web apa adanya; mirror ke R2 menyusul bila perlu (Tahap 5/6).

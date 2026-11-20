@@ -5,7 +5,7 @@ import { formatRupiah } from "@/core/money/format";
 import { setProductVisibleAction } from "../../../actions";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { btn, btnPrimary, card, input } from "@/components/admin/styles";
-import { PageTitle } from "@/components/admin/ui";
+import { Flash, PageTitle } from "@/components/admin/ui";
 import { requireAdmin } from "@/server/admin/auth";
 import { getBrand, listProducts } from "@/server/admin/data";
 
@@ -36,7 +36,17 @@ export default async function MenuPage({ params, searchParams }: PageProps<"/adm
           &larr; {brand.name}
         </Link>
       </p>
-      <PageTitle title={`Menu ${brand.name}`} />
+      <PageTitle title={`Menu ${brand.name}`}>
+        <div className="flex flex-wrap gap-2">
+          <Link href={`/admin/brand/${slug}/impor`} className={btn}>
+            Impor CSV
+          </Link>
+          <Link href={`/admin/brand/${slug}/menu/baru`} className={btnPrimary}>
+            Tambah produk
+          </Link>
+        </div>
+      </PageTitle>
+      <Flash code={typeof query.info === "string" ? query.info : undefined} />
       <p className="mb-4 text-sm text-ink-soft">Menu yang disembunyikan tidak tampil di semua outlet. Pilihan ini tetap berlaku setelah menu diimpor ulang.</p>
 
       <form action={`/admin/brand/${slug}/menu`} role="search" className="mb-4 flex gap-2">
@@ -63,6 +73,9 @@ export default async function MenuPage({ params, searchParams }: PageProps<"/adm
                         {!p.isActive ? " · tidak ada di sumber data" : ""}
                       </p>
                     </div>
+                    <Link href={`/admin/brand/${slug}/menu/${p.id}`} className={btn}>
+                      Ubah
+                    </Link>
                     <form action={setProductVisibleAction.bind(null, slug, p.id, !p.isVisible)}>
                       <SubmitButton className={p.isVisible ? btn : btnPrimary} pending="...">
                         {p.isVisible ? "Sembunyikan" : "Tampilkan"}

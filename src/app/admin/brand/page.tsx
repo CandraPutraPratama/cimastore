@@ -17,7 +17,11 @@ export default async function BrandsPage({ searchParams }: PageProps<"/admin/bra
 
   return (
     <>
-      <PageTitle title="Brand dan promo" />
+      <PageTitle title="Brand dan promo">
+        <Link href="/admin/brand/baru" className={btnPrimary}>
+          Tambah brand
+        </Link>
+      </PageTitle>
       <Flash code={typeof query.info === "string" ? query.info : undefined} />
       <ul className="space-y-3">
         {brands.map((b) => {

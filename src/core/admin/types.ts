@@ -131,3 +131,39 @@ export function describePromo(p: Pick<AdminPromo, "level" | "type" | "value" | "
   if (p.maxUsesPerOrder) parts.push(`maks ${p.maxUsesPerOrder}x per pesanan`);
   return parts.join(", ");
 }
+
+export const AdminProductDetailSchema = z.object({
+  product: z.object({
+    id: z.string(),
+    externalId: z.string(),
+    name: z.string(),
+    description: z.string().nullable(),
+    imageUrl: z.string().nullable(),
+    category: z.string(),
+    categoryExternalId: z.string(),
+    isVisible: z.boolean(),
+    isActive: z.boolean(),
+  }),
+  categories: z.array(z.object({ externalId: z.string(), name: z.string() })),
+  priceListCount: z.number().int(),
+  minPrice: z.number().int().nullable(),
+  maxPrice: z.number().int().nullable(),
+});
+export type AdminProductDetail = z.infer<typeof AdminProductDetailSchema>;
+
+export const AdminImportRunSchema = z.object({
+  source: z.string(),
+  status: z.string(),
+  startedAt: z.string(),
+  stats: z.object({ products: z.object({ inserted: z.number(), upserted: z.number(), deactivated: z.number() }).partial() }).partial().passthrough(),
+});
+export type AdminImportRun = z.infer<typeof AdminImportRunSchema>;
+
+export const CatalogContextSchema = z.object({
+  outletMode: z.enum(["catalog", "customer_input"]),
+  categories: z.array(z.object({ externalId: z.string(), name: z.string() })),
+  products: z.array(z.object({ externalId: z.string(), name: z.string(), category: z.string(), isActive: z.boolean() })),
+  outletCodes: z.array(z.string()),
+  priceListCodes: z.array(z.string()),
+});
+export type CatalogContext = z.infer<typeof CatalogContextSchema>;

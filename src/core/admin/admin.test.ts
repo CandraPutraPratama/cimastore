@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isoToLocalInput, localInputToIso } from "./datetime";
-import { parseBrandForm, parsePromoForm, parseSettingsForm, type FormValues } from "./forms";
+import { parseBrandCreateForm, parseBrandForm, parseProductForm, parsePromoForm, parseSettingsForm, type FormValues } from "./forms";
 import { constantTimeEqual, createSessionToken, passwordMatches, verifySessionToken } from "./session";
 import { brandWarnings, promoMarginWarnings } from "./warnings";
 
@@ -255,5 +255,37 @@ describe("peringatan margin", () => {
     expect(brandWarnings({ isActive: true, productCount: 5, outletCount: 0, outletMode: "catalog" })).toHaveLength(1);
     expect(brandWarnings({ isActive: true, productCount: 5, outletCount: 0, outletMode: "customer_input" })).toEqual([]);
     expect(brandWarnings({ isActive: false, productCount: 0, outletCount: 0, outletMode: "catalog" })).toEqual([]);
+  });
+});
+
+describe("parseBrandCreateForm", () => {
+  it("membuat alamat otomatis dari nama dan merapikan kode pesanan", () => {
+    const r = parseBrandCreateForm({ name: "Janji  Jiwa", slug: "", prefix: "jj", accent: "", outletMode: "" });
+    expect(r).toEqual({ ok: true, value: { slug: "janji-jiwa", name: "Janji Jiwa", prefix: "JJ", accent: "#444444", outletMode: "catalog" } });
+  });
+  it("menolak kode, alamat, dan warna yang salah", () => {
+    const r = parseBrandCreateForm({ name: "X", slug: "Bad Slug", prefix: "J", accent: "merah", outletMode: "lain" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(Object.keys(r.errors).sort()).toEqual(["accent", "outletMode", "prefix", "slug"]);
+  });
+  it("menolak alamat yang bentrok dengan halaman sistem", () => {
+    const r = parseBrandCreateForm({ name: "Baru", prefix: "BR" });
+    expect(r.ok).toBe(false);
+  });
+});
+
+describe("parseProductForm", () => {
+  it("membaca harga rupiah dan menormalkan spasi", () => {
+    const r = parseProductForm({ name: " Es  Teh ", category: "Minum", description: "", imageUrl: "", price: "Rp 12.000" }, { id: null, priceEditable: true });
+    expect(r).toEqual({ ok: true, value: { id: null, name: "Es Teh", category: "Minum", description: "", imageUrl: "", price: 12000 } });
+  });
+  it("harga tidak dibaca bila brand punya banyak price list", () => {
+    const r = parseProductForm({ name: "A", category: "B" }, { id: "x", priceEditable: false });
+    expect(r.ok && r.value.price).toBeNull();
+  });
+  it("menolak harga kosong atau bukan angka, dan foto bukan alamat web", () => {
+    const r = parseProductForm({ name: "A", category: "B", price: "", imageUrl: "ftp://x" }, { id: null, priceEditable: true });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(Object.keys(r.errors).sort()).toEqual(["imageUrl", "price"]);
   });
 });
