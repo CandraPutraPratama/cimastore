@@ -28,7 +28,7 @@ export function RecentOrders() {
       <ul className="mt-3 space-y-3">
         {orders.map((o) => (
           <li key={o.id}>
-            <Link href={o.path} className="panel panel-press flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
+            <Link href={o.path} className="panel-flat flex items-center justify-between gap-3 px-4 py-3">
               <span className="min-w-0">
                 <span className="block truncate font-semibold">
                   {o.brandName} di {o.outletName}

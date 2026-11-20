@@ -23,6 +23,9 @@
   --color-hemat-soft: #e1efd3;
   --color-danger: #c4402a;
 
+  --radius-panel: 16px;
+  --radius-control: 12px;
+
   --text-xs: 0.8125rem;
   --text-sm: 0.875rem;
   --text-base: 0.9375rem;
@@ -95,7 +98,7 @@ label:has(input:not(:disabled)) {
 /* Panel: kartu dengan outline tebal dan bayangan keras. */
 .panel {
   border: 2.5px solid var(--color-ink);
-  border-radius: 18px;
+  border-radius: var(--radius-panel);
   background: var(--color-paper);
   box-shadow: 3px 3px 0 var(--color-ink);
 }
@@ -117,6 +120,23 @@ label:has(input:not(:disabled)) {
 .panel-press:disabled {
   transform: none;
   box-shadow: 3px 3px 0 var(--color-ink);
+}
+
+/* Panel datar: outline saja, tanpa bayangan. Untuk daftar panjang (menu, outlet, kartu admin),
+   supaya bayangan keras hanya tinggal di hal utama (kartu brand, tombol, keranjang). */
+.panel-flat {
+  border: 2.5px solid var(--color-ink);
+  border-radius: var(--radius-panel);
+  background: var(--color-paper);
+  transition: background-color 90ms ease-out;
+}
+a.panel-flat:hover,
+button.panel-flat:hover:not(:disabled) {
+  background: var(--color-mist);
+}
+a.panel-flat:active,
+button.panel-flat:active:not(:disabled) {
+  background: var(--color-spark);
 }
 
 /* Tombol utama (oranye) dan tombol sekunder (krem). */
@@ -180,7 +200,7 @@ label:has(input:not(:disabled)) {
   gap: 0.375rem;
   border: 2px solid var(--color-ink);
   border-radius: 8px;
-  padding: 0.0625rem 0.5rem;
+  padding: 0.125rem 0.5rem;
   font-size: var(--text-xs);
   font-weight: 800;
   line-height: 1.5;
@@ -191,9 +211,9 @@ label:has(input:not(:disabled)) {
 .field {
   width: 100%;
   border: 2.5px solid var(--color-ink);
-  border-radius: 14px;
+  border-radius: var(--radius-control);
   background: var(--color-paper);
-  padding: 0.625rem 0.875rem;
+  padding: 0.625rem 1rem;
   font-size: 1rem;
   box-shadow: inset 0 2px 0 rgb(42 27 18 / 0.08);
 }
@@ -219,7 +239,7 @@ label:has(input:not(:disabled)) {
 /* Kotak pilihan (radio/checkbox) berbingkai. */
 .choice {
   border: 2.5px solid var(--color-ink);
-  border-radius: 14px;
+  border-radius: var(--radius-control);
   background: var(--color-paper);
 }
 .choice:has(input:checked) {
@@ -275,6 +295,7 @@ label:has(input:not(:disabled)) {
 
 @media (prefers-reduced-motion: reduce) {
   .panel-press,
+  .panel-flat,
   .btn,
   .btn-ghost,
   .chip {
@@ -300,11 +321,11 @@ label:has(input:not(:disabled)) {
   /* Satu momen: balon di beranda muncul sekali saat halaman dibuka. */
   .bubble-pop {
     transform-origin: 0 1.8rem;
-    animation: bubble-pop 380ms cubic-bezier(0.3, 1.5, 0.5, 1) 120ms both;
+    animation: bubble-pop 280ms cubic-bezier(0.2, 0.8, 0.2, 1) 120ms both;
   }
   @keyframes bubble-pop {
     from {
-      transform: scale(0.6);
+      transform: scale(0.9);
       opacity: 0;
     }
     to {

@@ -31,13 +31,13 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
             <>
               <nav aria-label="Menu admin" className="order-last flex w-full gap-x-1 overflow-x-auto pb-1 [scrollbar-width:none] sm:order-none sm:w-auto sm:flex-1 sm:pb-0">
                 {NAV.map((item) => (
-                  <Link key={item.href} href={item.href} className="inline-flex min-h-11 shrink-0 items-center rounded-full px-3.5 text-sm font-bold text-ink hover:bg-spark">
+                  <Link key={item.href} href={item.href} className="inline-flex min-h-11 shrink-0 items-center rounded-full px-4 text-sm font-bold text-ink hover:bg-spark">
                     {item.label}
                   </Link>
                 ))}
               </nav>
               <form action={logoutAction} className="ml-auto sm:ml-0">
-                <button type="submit" className="inline-flex min-h-11 items-center rounded-full px-3.5 text-sm font-bold text-ink hover:bg-spark">
+                <button type="submit" className="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold text-ink hover:bg-spark">
                   Keluar
                 </button>
               </form>

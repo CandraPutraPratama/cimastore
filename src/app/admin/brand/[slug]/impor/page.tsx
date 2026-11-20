@@ -61,7 +61,7 @@ export default async function ImportPage({ params }: PageProps<"/admin/brand/[sl
             <h2 className="mb-2 font-bold">Impor terakhir</h2>
             <ul className="divide-y divide-line text-sm">
               {runs.map((r) => (
-                <li key={r.startedAt} className="flex flex-wrap justify-between gap-2 py-1.5">
+                <li key={r.startedAt} className="flex flex-wrap justify-between gap-2 py-2">
                   <span>{formatDateTime(r.startedAt)}</span>
                   <span className="text-ink-soft">
                     {r.source} · {r.status === "success" ? "berhasil" : r.status}

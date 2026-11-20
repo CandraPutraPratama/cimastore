@@ -22,7 +22,7 @@ interface Props {
 
 const noSubscribe = () => () => {};
 const inputClass =
-  "field mt-1.5 block aria-[invalid=true]:border-danger";
+  "field mt-2 block aria-[invalid=true]:border-danger";
 
 export function CheckoutForm({ menu, pickup, readyAt, expiryMinutes }: Props) {
   const router = useRouter();
@@ -198,7 +198,7 @@ export function CheckoutForm({ menu, pickup, readyAt, expiryMinutes }: Props) {
                       setTime(e.target.value);
                       setMode("scheduled");
                     }}
-                    className="field w-auto px-3 py-1.5"
+                    className="field w-auto px-3 py-2"
                   >
                     {pickup.slots.map((slot) => (
                       <option key={slot} value={slot}>

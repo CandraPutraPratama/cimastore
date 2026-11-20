@@ -210,7 +210,7 @@ export function OrderView({ initialOrder, token, payment, serverNow }: Props) {
             target="_blank"
             rel="noopener"
             onClick={confirmPaid}
-            className="btn flex w-full items-center justify-center px-5 py-3.5"
+            className="btn flex w-full items-center justify-center px-5 py-4"
           >
             Sudah bayar, kirim bukti ke WhatsApp
           </a>
@@ -264,7 +264,7 @@ export function OrderView({ initialOrder, token, payment, serverNow }: Props) {
             return (
               <li key={step.status} aria-current={i === currentStep ? "step" : undefined}>
                 <span className={`block h-3 rounded-full border-2 border-ink ${done ? "bg-hemat" : "bg-paper"}`} />
-                <span className={`mt-1.5 block text-sm ${i === currentStep ? "font-bold" : done ? "text-ink-soft" : "text-ink-faint"}`}>{step.label}</span>
+                <span className={`mt-2 block text-sm ${i === currentStep ? "font-bold" : done ? "text-ink-soft" : "text-ink-faint"}`}>{step.label}</span>
               </li>
             );
           })}
@@ -302,7 +302,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
           // Clipboard diblokir browser: abaikan.
         }
       }}
-      className="btn-ghost px-3.5 py-1.5 text-sm"
+      className="btn-ghost px-4 py-2 text-sm"
     >
       {done ? "Tersalin" : label}
     </button>
@@ -328,7 +328,7 @@ function SaveQrButton({ payload, orderId, lines }: { payload: string; orderId: s
           setState("failed");
         }
       }}
-      className="btn-ghost mt-3 w-full px-4 py-2.5 text-sm"
+      className="btn-ghost mt-3 w-full px-4 py-3 text-sm"
     >
       {state === "saved" ? "Gambar QR tersimpan" : state === "failed" ? "Gagal menyimpan, coba screenshot" : "Simpan gambar QR"}
     </button>

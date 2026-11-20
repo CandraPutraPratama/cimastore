@@ -14,7 +14,7 @@ export function ServiceStatus({ settings, now }: { settings: SiteSettings; now: 
       : status.state === "tentative"
         ? `Buka terbatas hari ini, konfirmasi admin dulu`
         : status.nextOpen
-          ? `Tutup. Buka lagi ${status.nextOpen.isToday ? "hari ini" : DAY_NAMES[status.nextOpen.day]} ${dot(status.nextOpen.time)} WIB`
+          ? `Tutup, buka lagi ${status.nextOpen.isToday ? "hari ini" : DAY_NAMES[status.nextOpen.day]} ${dot(status.nextOpen.time)} WIB`
           : "Sedang tutup";
 
   const tone =

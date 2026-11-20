@@ -58,7 +58,7 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
   return (
     <main className="flex flex-1 flex-col pb-28">
       <header className="px-5 pt-5 pb-3">
-        <Link href={`/${menu.brand.slug}`} className="chip px-3.5 py-2 text-sm">
+        <Link href={`/${menu.brand.slug}`} className="chip px-4 py-2 text-sm">
           ← Ganti outlet
         </Link>
         <div className="mt-3 flex items-center gap-3">
@@ -80,13 +80,13 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
       </header>
 
       <nav aria-label="Kategori menu" className="sticky top-0 z-20 border-y-[2.5px] border-ink bg-mist">
-        <ul className="flex gap-2 overflow-x-auto px-5 py-2.5 [scrollbar-width:none]">
+        <ul className="flex gap-2 overflow-x-auto px-5 py-3 [scrollbar-width:none]">
           {byCategory.map((c) => (
             <li key={c.id} className="shrink-0">
               <button
                 type="button"
                 onClick={() => jumpTo(c.id)}
-                className="chip px-3.5 py-2 text-sm whitespace-nowrap"
+                className="chip px-4 py-2 text-sm whitespace-nowrap"
               >
                 {c.name}
               </button>
@@ -98,7 +98,7 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
       {byCategory.map((category) => (
         <section key={category.id} id={`kategori-${category.id}`} className="scroll-mt-14" aria-labelledby={`judul-${category.id}`}>
           <h2 id={`judul-${category.id}`} className="px-5 pt-6 pb-3 text-2xl font-semibold">
-            <span className="marker">{category.name}</span>
+            {category.name}
           </h2>
           <ul className="space-y-3 px-4">
             {category.products.map((product) => {
@@ -113,9 +113,9 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
                     type="button"
                     disabled={soldOut}
                     onClick={() => setOpenProductId(product.id)}
-                    className="panel panel-press flex w-full items-center gap-3 p-3 text-left disabled:cursor-not-allowed"
+                    className="panel-flat flex w-full items-center gap-3 p-3 text-left disabled:cursor-not-allowed"
                   >
-                    <ProductImage src={product.imageUrl} name={product.name} className={`size-20 shrink-0 rounded-xl border-2 border-ink ${soldOut ? "opacity-40 grayscale" : ""}`} />
+                    <ProductImage src={product.imageUrl} name={product.name} className={`size-20 shrink-0 rounded-md border-2 border-ink ${soldOut ? "opacity-40 grayscale" : ""}`} />
                     <span className="min-w-0 flex-1">
                       <span className={`font-display block text-lg leading-snug font-semibold ${soldOut ? "text-ink-faint" : ""}`}>{product.name}</span>
                       {product.description ? (

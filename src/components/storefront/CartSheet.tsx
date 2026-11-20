@@ -60,7 +60,7 @@ export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQ
           <h2 id="judul-keranjang" className="text-2xl font-semibold">
             Pesananmu
           </h2>
-          <button type="button" onClick={onClose} className="chip px-3.5 py-2 text-sm">
+          <button type="button" onClick={onClose} className="chip px-4 py-2 text-sm">
             Tutup
           </button>
         </div>

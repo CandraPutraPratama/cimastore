@@ -112,7 +112,7 @@ export function OutletPicker({ brand, initial }: { brand: string; initial: Outle
           <li key={outlet.code}>
             <Link
               href={`/${brand}/${encodeURIComponent(outlet.code)}`}
-              className="panel panel-press block p-4"
+              className="panel-flat block p-4"
             >
               <span className="flex items-baseline justify-between gap-3">
                 <span className="font-display text-lg leading-snug font-semibold">{outlet.name}</span>

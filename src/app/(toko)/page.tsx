@@ -40,7 +40,7 @@ export default async function Home() {
             className="size-28 shrink-0 rounded-full"
           />
           <div className="bubble bubble-pop min-w-0 flex-1 px-4 py-3">
-            <h1 className="text-xl leading-snug font-semibold">Mau ngopi lebih hemat? Pesan di sini, ambil sendiri di outlet.</h1>
+            <h1 className="text-xl leading-snug font-semibold">Mau ngopi lebih hemat? Pesan di sini, ambil sendiri di outlet</h1>
           </div>
         </div>
         <Spark className="absolute top-4 left-[6.75rem] w-7 -rotate-12" />
@@ -69,7 +69,7 @@ export default async function Home() {
                 <>
                   <span
                     aria-hidden
-                    className="outline-letter grid size-14 shrink-0 place-items-center rounded-xl border-[2.5px] border-ink text-[1.75rem]"
+                    className="outline-letter grid size-14 shrink-0 place-items-center rounded-md border-[2.5px] border-ink text-[1.75rem]"
                     style={{ background: brand.theme.accent ?? "var(--color-marigold)" }}
                   >
                     {brand.name.trim().charAt(0).toUpperCase()}
@@ -78,9 +78,9 @@ export default async function Home() {
                     <span className="flex items-baseline justify-between gap-3">
                       <span className="font-display text-xl font-semibold">{brand.name}</span>
                       {notReady ? (
-                        <span className="sticker bg-mist text-ink-soft">Segera hadir</span>
+                        <span className="sticker [transform:none] bg-mist text-ink-soft">Segera hadir</span>
                       ) : !brand.isActive ? (
-                        <span className="sticker bg-mist text-ink-soft">Pratinjau</span>
+                        <span className="sticker [transform:none] bg-mist text-ink-soft">Pratinjau</span>
                       ) : null}
                     </span>
                     <span className="mt-0.5 block text-sm text-ink-soft">

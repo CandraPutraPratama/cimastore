@@ -29,7 +29,7 @@ export default async function CheckoutPage({ params }: PageProps<"/[brand]/[outl
   return (
     <main className="flex flex-1 flex-col">
       <header className="px-5 pt-5 pb-4">
-        <Link href={`/${menu.brand.slug}/${encodeURIComponent(menu.outlet.code)}`} className="chip px-3.5 py-2 text-sm">
+        <Link href={`/${menu.brand.slug}/${encodeURIComponent(menu.outlet.code)}`} className="chip px-4 py-2 text-sm">
           ← Kembali ke menu
         </Link>
         <h1 className="mt-3 text-3xl font-semibold">Checkout</h1>
