@@ -31,7 +31,8 @@ export default async function Home() {
         ) : (
           <ul>
             {brands.map((brand) => {
-              const notReady = brand.outletMode === "catalog" && brand.outletCount === 0;
+              // Belum siap: menu belum diimpor, atau brand katalog tanpa outlet aktif.
+              const notReady = brand.productCount === 0 || (brand.outletMode === "catalog" && brand.outletCount === 0);
               const body = (
                 <>
                   <span aria-hidden className="w-1.5 shrink-0 rounded-full" style={{ background: brand.theme.accent ?? "var(--color-ink)" }} />
@@ -45,10 +46,10 @@ export default async function Home() {
                       ) : null}
                     </span>
                     <span className="mt-0.5 block text-sm text-ink-soft">
-                      {brand.outletMode === "customer_input"
-                        ? "Tulis sendiri outlet tujuanmu"
-                        : notReady
-                          ? "Menu sedang disiapkan"
+                      {notReady
+                        ? "Menu sedang disiapkan"
+                        : brand.outletMode === "customer_input"
+                          ? "Tulis sendiri outlet tujuanmu"
                           : `${number.format(brand.outletCount)} outlet`}
                     </span>
                     {brand.promoNames.length > 0 ? (

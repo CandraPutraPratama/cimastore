@@ -36,6 +36,7 @@ export const HomePayloadSchema = z.object({
     BrandBaseSchema.extend({
       logoUrl: z.string().nullish(),
       outletCount: z.number().int(),
+      productCount: z.number().int().default(0),
       promoNames: z.array(z.string()).default([]),
     }),
   ),
