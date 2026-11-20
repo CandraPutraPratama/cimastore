@@ -63,7 +63,19 @@ describe("dedupePriceLists", () => {
       ],
       "kk",
     );
-    expect(priceLists.map((p) => p.code)).toEqual(["kk-1", "kk-2"]);
-    expect(Object.fromEntries(priceListByOutlet)).toEqual({ A: "kk-1", B: "kk-1", C: "kk-2" });
+    expect(priceLists).toHaveLength(2);
+    const [first, second] = priceLists.map((p) => p.code);
+    expect(first).toMatch(/^kk-[0-9a-z]+$/);
+    expect(first).not.toBe(second);
+    expect(Object.fromEntries(priceListByOutlet)).toEqual({ A: first, B: first, C: second });
+  });
+
+  it("kode price list ditentukan isinya, bukan urutan", () => {
+    const a = { basePrices: { x: 1 }, compareAtBasePrices: {}, optionDeltas: {} };
+    const b = { basePrices: { x: 2 }, compareAtBasePrices: {}, optionDeltas: {} };
+    const run1 = dedupePriceLists([{ outletCode: "A", content: a }, { outletCode: "B", content: b }], "kk");
+    const run2 = dedupePriceLists([{ outletCode: "B", content: b }, { outletCode: "A", content: a }], "kk");
+    expect(run1.priceListByOutlet.get("A")).toBe(run2.priceListByOutlet.get("A"));
+    expect(run1.priceListByOutlet.get("B")).toBe(run2.priceListByOutlet.get("B"));
   });
 });

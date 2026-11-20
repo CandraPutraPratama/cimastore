@@ -1,6 +1,6 @@
 # Jasdor v2 - Arsitektur & Rencana Bangun
 
-Status: Tahap 0 selesai. Tahap 1: mesin harga + promo + pemecahan transaksi, skema database, importer KK, Fore, Chagee, Chatime selesai. Sisa Tahap 1: pemuat snapshot ke database (butuh project Supabase).
+Status: Tahap 0 dan Tahap 1 selesai (mesin harga + promo + pemecahan transaksi, skema database, importer 4 brand, skrip migrasi & import ke database). Berikutnya Tahap 2 (katalog customer).
 Tanggal: 20 November 2026
 
 ---
@@ -163,6 +163,16 @@ npm run snapshot -- chatime ./Chatime
 Aturan importer KK (`src/brands/kopi-kenangan/importer.ts`): kategori Baru!/Coffee/Non Coffee/Kenangan Frappe/Kenangan Toast/Food; outlet Signature/Heritage/Chigo tidak dilayani; Seliter, Chigo/ChiMate/KrunChi, FLIP, air mineral disembunyikan; Jumbo tidak dijual; Large +5.000, Juwara +3.000, Oatside +3.000, Syrup/Sauce +6.000, Topping +6.000; Whipped Cream gratis pilih 1 khusus Frappe; harga coret Large/Juwara/Oatside dari kombinasi SKU asli KK. Minuman tanpa data kustomisasi tidak dijual (dilaporkan), makanan dijual tanpa opsi.
 
 Fore (`src/brands/fore/importer.ts`): kustomisasi dicocokkan setelah awalan Iced/Hot dibuang; pilihan es hanya untuk produk Iced; Large +7.000.
+
+### Memasukkan ke database
+
+```bash
+npm run db:migrate              # tabel + data awal (brand, promo, pengaturan); aman diulang
+npm run db:import -- --all      # 4 brand dari folder data mentah default
+npm run db:import -- fore       # satu brand saja
+```
+
+Skrip memakai `DATABASE_URL` (Session pooler Supabase) di `.env.local`, dijalankan dari laptop pemilik atau GitHub Actions (jaringan sesi agent tidak bisa menjangkau supabase.co). Import satu brand berjalan dalam satu transaksi (`src/server/db/import-catalog.ts`): data yang hilang dari sumber dinonaktifkan, bukan dihapus; price list berkode hash isi sehingga import ulang tanpa perubahan harga tidak menulis ulang harga. Uji lokal (Postgres 16, data asli): import awal 4 brand sekitar 4 detik (2.283 outlet, 435 produk, 87.042 baris harga, 75.541 status produk per outlet); import ulang tanpa perubahan menulis 0 baris harga.
 
 Chagee dan Chatime memakai format data yang sama, jadi berbagi satu konverter (`src/brands/store-menu-format.ts`): ukuran (Small/Regular/Large) menjadi grup opsi "Ukuran" dengan harga dasar = ukuran termurah; topping khusus ukuran memakai `requiresAnyOf`; price list per outlet digabung bila identik.
 

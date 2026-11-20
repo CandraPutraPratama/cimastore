@@ -18,13 +18,28 @@ function canonical(content: PriceListContent): string {
   });
 }
 
+/** Hash 53-bit (cyrb53) yang stabil, untuk kode price list berbasis isi. */
+function contentHash(text: string): string {
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+}
+
 /**
  * Brand seperti Kopi Kenangan punya harga per outlet, tapi banyak outlet berbagi
  * harga yang persis sama. Fungsi ini menggabungkan price list yang isinya identik
  * supaya database tidak menyimpan ribuan salinan yang sama.
  *
- * Kode price list dibuat berurutan (`<prefix>-1`, `<prefix>-2`, ...) mengikuti urutan
- * kemunculan pertama, jadi hasilnya stabil untuk input yang sama.
+ * Kode price list diturunkan dari ISINYA (`<prefix>-<hash>`): isi sama = kode sama.
+ * Jadi saat import ulang, price list yang tidak berubah tidak perlu ditulis ulang;
+ * price list baru hanya muncul bila ada harga yang benar-benar berubah.
  */
 export function dedupePriceLists(
   entries: Array<{ outletCode: string; content: PriceListContent }>,
@@ -38,7 +53,9 @@ export function dedupePriceLists(
     const key = canonical(content);
     let code = codeByKey.get(key);
     if (!code) {
-      code = `${prefix}-${priceLists.length + 1}`;
+      code = `${prefix}-${contentHash(key)}`;
+      // Tabrakan hash hampir mustahil, tapi tetap dijaga agar kode selalu unik.
+      while (priceLists.some((p) => p.code === code)) code = `${code}x`;
       codeByKey.set(key, code);
       priceLists.push({ code, ...content });
     }

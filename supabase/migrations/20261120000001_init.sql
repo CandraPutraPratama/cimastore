@@ -8,7 +8,9 @@
 -- (service role). Browser tidak pernah membaca Supabase langsung.
 -- =============================================================================
 
-create extension if not exists pg_trgm;
+-- Di Supabase ekstensi ditaruh di schema "extensions".
+create schema if not exists extensions;
+create extension if not exists pg_trgm with schema extensions;
 
 create or replace function public.set_updated_at() returns trigger
 language plpgsql as $$
@@ -111,8 +113,8 @@ create table public.outlets (
 );
 
 create index outlets_brand_active_idx on public.outlets (brand_id) where is_active;
-create index outlets_name_trgm_idx on public.outlets using gin (name gin_trgm_ops);
-create index outlets_city_trgm_idx on public.outlets using gin (city gin_trgm_ops);
+create index outlets_name_trgm_idx on public.outlets using gin (name extensions.gin_trgm_ops);
+create index outlets_city_trgm_idx on public.outlets using gin (city extensions.gin_trgm_ops);
 create trigger outlets_updated_at before update on public.outlets
   for each row execute function public.set_updated_at();
 

@@ -1,54 +1,31 @@
 /**
- * Membuat CatalogSnapshot dari data mentah satu brand lalu memvalidasinya.
+ * Membuat CatalogSnapshot dari data mentah satu brand lalu memvalidasinya (tanpa database).
  *
- *   npm run snapshot -- <brand> <folder-data-mentah> [file-output]
- *   npm run snapshot -- chagee ./Chagee
+ *   npm run snapshot -- <brand> [folder-data-mentah] [file-output]
+ *   npm run snapshot -- chagee
  *
  * Output default: .snapshots/<brand>.json (tidak masuk git).
  */
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { CatalogSnapshotSchema } from "../src/core/catalog/snapshot";
-import { importers } from "../src/brands/registry";
+import { buildSnapshotFromDir, DEFAULT_RAW_DIRS, printReport } from "./lib/snapshot";
 
 async function main() {
-  const [brand, rawDir, outArg] = process.argv.slice(2);
-  const importer = brand ? importers[brand] : undefined;
-  if (!importer || !rawDir) {
-    console.error(`Pemakaian: npm run snapshot -- <brand> <folder-data> [output]\nBrand: ${Object.keys(importers).join(", ")}`);
+  const [brand, rawDirArg, outArg] = process.argv.slice(2);
+  if (!brand) {
+    console.error(`Pemakaian: npm run snapshot -- <brand> [folder-data] [output]\nBrand: ${Object.keys(DEFAULT_RAW_DIRS).join(", ")}`);
     process.exit(1);
   }
-
-  const raw: Record<string, unknown> = {};
-  for (const [key, file] of Object.entries(importer.files)) {
-    raw[key] = JSON.parse(await readFile(path.join(rawDir, file), "utf8"));
-  }
-  for (const [key, { dir, pattern }] of Object.entries(importer.dirs ?? {})) {
-    const entries: Record<string, unknown> = {};
-    for (const name of (await readdir(path.join(rawDir, dir))).sort()) {
-      if (pattern.test(name)) entries[name] = JSON.parse(await readFile(path.join(rawDir, dir, name), "utf8"));
-    }
-    raw[key] = entries;
-  }
-
-  const { snapshot, report } = importer.build(raw, new Date().toISOString());
-  const parsed = CatalogSnapshotSchema.safeParse(snapshot);
-  if (!parsed.success) {
-    console.error("Snapshot TIDAK valid:");
-    for (const issue of parsed.error.issues.slice(0, 30)) console.error(` - ${issue.path.join(".")}: ${issue.message}`);
-    process.exit(1);
-  }
-
+  const rawDir = rawDirArg ?? DEFAULT_RAW_DIRS[brand];
+  const { snapshot, report } = await buildSnapshotFromDir(brand, rawDir);
   const out = outArg ?? path.join(".snapshots", `${brand}.json`);
   await mkdir(path.dirname(out), { recursive: true });
-  await writeFile(out, JSON.stringify(parsed.data, null, 1));
-
+  await writeFile(out, JSON.stringify(snapshot, null, 1));
   console.log(`Snapshot ${brand} valid -> ${out}`);
-  for (const [k, v] of Object.entries(report.counts)) console.log(`  ${k}: ${v}`);
-  for (const w of report.warnings) console.log(`  ! ${w}`);
+  printReport(report);
 }
 
 main().catch((err) => {
-  console.error(err);
+  console.error(err instanceof Error ? err.message : err);
   process.exit(1);
 });

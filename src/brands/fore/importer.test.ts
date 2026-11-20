@@ -58,7 +58,7 @@ describe("importer Fore", () => {
     expect(report.warnings.join("\n")).not.toContain("Aceh Gayo");
     expect(report.warnings.join("\n")).toContain("Outlet Kosong dilewati");
     expect(snap.outlets).toEqual([
-      { code: "SNP", name: "Senopati", address: "Jl. Senopati 1", lat: -6.2, lng: 106.8, hours: { open: "07:00", close: "23:00" }, priceListCode: "fr-1" },
+      { code: "SNP", name: "Senopati", address: "Jl. Senopati 1", lat: -6.2, lng: 106.8, hours: { open: "07:00", close: "23:00" }, priceListCode: expect.stringMatching(/^fr-/) },
     ]);
   });
 
