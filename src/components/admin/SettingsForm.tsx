@@ -30,7 +30,7 @@ export function SettingsForm({ settings, qrisMerchant }: { settings: SiteSetting
 
   return (
     <form action={action} className="space-y-6">
-      <fieldset className="space-y-3 rounded-xl border border-line p-4">
+      <fieldset className="space-y-3 rounded-xl border-2 border-dashed border-ink/40 p-4">
         <legend className="px-1 text-sm font-semibold">Jadwal layanan (semua brand)</legend>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[22rem] text-sm">

@@ -206,6 +206,16 @@ label:has(input:not(:disabled)) {
   box-shadow: 3px 3px 0 var(--color-marigold);
 }
 
+.field::file-selector-button {
+  margin-right: 0.75rem;
+  border: 2px solid var(--color-ink);
+  border-radius: 999px;
+  background: var(--color-spark);
+  padding: 0.125rem 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 /* Kotak pilihan (radio/checkbox) berbingkai. */
 .choice {
   border: 2.5px solid var(--color-ink);

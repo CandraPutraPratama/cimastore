@@ -54,7 +54,7 @@ export default async function OrderDetailPage({ params, searchParams }: PageProp
         <div className="space-y-4">
           <section className={card} aria-labelledby="ringkasan">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 id="ringkasan" className="font-mono text-xl font-extrabold">
+              <h1 id="ringkasan" className="font-mono text-xl font-bold">
                 {order.id}
               </h1>
               <StatusBadge status={order.status} />
@@ -164,7 +164,7 @@ export default async function OrderDetailPage({ params, searchParams }: PageProp
 
         <aside className="space-y-4">
           {order.needsRefund ? (
-            <section className="rounded-2xl border border-danger/40 bg-danger/5 p-4" aria-labelledby="refund">
+            <section className="panel border-danger bg-danger/5 p-4" aria-labelledby="refund">
               <h2 id="refund" className="font-bold text-danger">
                 Perlu refund {formatRupiah(order.total)}
               </h2>

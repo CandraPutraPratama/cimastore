@@ -4,14 +4,14 @@ import { FLASH, STATUS_STYLE } from "./format";
 import { input } from "./styles";
 
 export function StatusBadge({ status }: { status: OrderStatus }) {
-  return <span className={`inline-block rounded-md px-2 py-0.5 text-xs font-semibold ${STATUS_STYLE[status]}`}>{STATUS_LABEL[status]}</span>;
+  return <span className={`sticker [transform:none] ${STATUS_STYLE[status]}`}>{STATUS_LABEL[status]}</span>;
 }
 
 export function Flash({ code }: { code: string | undefined }) {
   const flash = code ? FLASH[code] : undefined;
   if (!flash) return null;
   return (
-    <p role="status" className={`mb-4 rounded-xl px-4 py-3 text-sm font-medium ${flash.tone === "ok" ? "bg-hemat-soft text-hemat" : "bg-marigold/25 text-ink"}`}>
+    <p role="status" className={`mb-4 rounded-xl border-2 border-ink px-4 py-3 text-sm font-semibold ${flash.tone === "ok" ? "bg-hemat-soft text-hemat" : "bg-spark text-ink"}`}>
       {flash.text}
     </p>
   );
@@ -20,7 +20,7 @@ export function Flash({ code }: { code: string | undefined }) {
 export function PageTitle({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-      <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
+      <h1 className="text-3xl font-semibold">{title}</h1>
       {children}
     </div>
   );
@@ -81,7 +81,7 @@ export function Select({
 export function FormMessage({ state }: { state: { ok?: boolean; message?: string } | undefined }) {
   if (!state?.message) return null;
   return (
-    <p role={state.ok ? "status" : "alert"} className={`rounded-xl px-4 py-3 text-sm font-medium ${state.ok ? "bg-hemat-soft text-hemat" : "bg-danger/10 text-danger"}`}>
+    <p role={state.ok ? "status" : "alert"} className={`rounded-xl border-2 border-ink px-4 py-3 text-sm font-semibold ${state.ok ? "bg-hemat-soft text-hemat" : "bg-paper text-danger"}`}>
       {state.message}
     </p>
   );

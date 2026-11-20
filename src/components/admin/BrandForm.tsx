@@ -25,24 +25,24 @@ export function BrandForm({ brand }: { brand: AdminBrand }) {
         <Field label="Nama brand" name="name" error={err.name}>
           <TextInput name="name" defaultValue={val("name", brand.name)} error={err.name} required maxLength={60} />
         </Field>
-        <Field label="Warna brand" name="accent" error={err.accent} hint="Dipakai untuk garis warna di beranda dan pesanan.">
+        <Field label="Warna brand" name="accent" error={err.accent} hint="Dipakai untuk warna kotak brand di beranda dan garis warna di pesanan.">
           <div className="flex items-center gap-2">
             <input
               type="color"
               aria-label="Pilih warna"
-              defaultValue={String(val("accent", brand.theme.accent ?? "#17233b"))}
+              defaultValue={String(val("accent", brand.theme.accent ?? "#f4a63a"))}
               onChange={(e) => {
                 const text = e.currentTarget.form?.elements.namedItem("accent");
                 if (text instanceof HTMLInputElement) text.value = e.currentTarget.value;
               }}
-              className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-line bg-paper p-1"
+              className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border-2 border-ink bg-paper p-1"
             />
-            <TextInput name="accent" defaultValue={String(val("accent", brand.theme.accent ?? "#17233b"))} error={err.accent} maxLength={7} className="block w-full min-h-11 rounded-xl border border-line bg-paper px-3 py-2 font-mono text-base" />
+            <TextInput name="accent" defaultValue={String(val("accent", brand.theme.accent ?? "#f4a63a"))} error={err.accent} maxLength={7} className="field block min-h-11 font-mono" />
           </div>
         </Field>
       </div>
 
-      <fieldset className="space-y-3 rounded-xl border border-line p-4">
+      <fieldset className="space-y-3 rounded-xl border-2 border-dashed border-ink/40 p-4">
         <legend className="px-1 text-sm font-semibold">Biaya jasa</legend>
         <Field label="Cara menghitung" name="feeType" error={err.feeType}>
           <Select name="feeType" value={feeType} onChange={(e) => setFeeType(e.currentTarget.value)}>

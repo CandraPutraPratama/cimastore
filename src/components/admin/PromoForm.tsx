@@ -86,7 +86,7 @@ export function PromoForm({
         </Field>
       </div>
 
-      <fieldset className="space-y-3 rounded-xl border border-line p-4">
+      <fieldset className="space-y-3 rounded-xl border-2 border-dashed border-ink/40 p-4">
         <legend className="px-1 text-sm font-semibold">Syarat dan batas (kosongkan bila tidak ada)</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Potongan maksimal (Rp)" name="maxDiscount" error={err.maxDiscount} hint={level === "item" ? "Per porsi." : "Per transaksi."}>
@@ -112,7 +112,7 @@ export function PromoForm({
         </div>
       </fieldset>
 
-      <fieldset className="rounded-xl border border-line p-4" aria-describedby="produk-hint">
+      <fieldset className="rounded-xl border-2 border-dashed border-ink/40 p-4" aria-describedby="produk-hint">
         <legend className="px-1 text-sm font-semibold">{level === "item" ? "Produk yang dapat promo (wajib pilih)" : "Batasi ke produk tertentu (kosong = semua produk)"}</legend>
         {products.length === 0 ? (
           <p className="text-sm text-ink-soft">Brand ini belum punya produk. Import menu dulu untuk memilih produk.</p>

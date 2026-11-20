@@ -35,10 +35,10 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/pes
               key={f}
               href={href(f)}
               aria-current={active ? "page" : undefined}
-              className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold ${active ? "border-ink bg-ink text-paper" : "border-line bg-paper text-ink hover:bg-mist"}`}
+              className={`chip min-h-11 gap-2 px-4 text-sm ${active ? "bg-marigold shadow-[2px_2px_0_var(--color-ink)]" : ""}`}
             >
               {FILTER_LABEL[f]}
-              {count !== null && count > 0 ? <span className={`rounded-full px-2 text-xs ${active ? "bg-paper/20" : f === "refund" ? "bg-danger/10 text-danger" : "bg-mist"}`}>{count}</span> : null}
+              {count !== null && count > 0 ? <span className={`rounded-full px-2 text-xs ${active ? "bg-paper" : f === "refund" ? "bg-danger/10 text-danger" : "bg-mist"}`}>{count}</span> : null}
             </Link>
           );
         })}
