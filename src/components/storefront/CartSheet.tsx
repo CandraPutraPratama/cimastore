@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 import type { PricedOrder } from "@/core/pricing/engine";
 import { formatRupiah } from "@/core/money/format";
@@ -19,12 +20,14 @@ interface Props {
   rows: CartRow[];
   order: PricedOrder;
   maxItems: number;
+  /** null = ada menu bermasalah di keranjang, checkout ditahan. */
+  checkoutHref: string | null;
   onQuantity: (key: string, quantity: number) => void;
   onClose: () => void;
 }
 
 /** Keranjang berbentuk struk. Angka "Kamu hemat" adalah hal pertama yang dibaca. */
-export function CartSheet({ outletName, rows, order, maxItems, onQuantity, onClose }: Props) {
+export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQuantity, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -150,15 +153,27 @@ export function CartSheet({ outletName, rows, order, maxItems, onQuantity, onClo
         </div>
 
         <div className="border-t border-line bg-paper px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <button
-            type="button"
-            disabled
-            className="flex w-full items-center justify-between rounded-full bg-ink px-5 py-3 font-semibold text-paper disabled:opacity-40"
-          >
-            <span>Lanjut ke pembayaran</span>
-            <span className="price">{formatRupiah(order.total)}</span>
-          </button>
-          <p className="mt-2 text-center text-xs text-ink-faint">Pembayaran QRIS sedang disiapkan.</p>
+          {checkoutHref && order.itemCount > 0 ? (
+            <Link
+              href={checkoutHref}
+              className="flex w-full items-center justify-between rounded-full bg-ink px-5 py-3 font-semibold text-paper"
+            >
+              <span>Lanjut ke pembayaran</span>
+              <span className="price">{formatRupiah(order.total)}</span>
+            </Link>
+          ) : (
+            <>
+              <button
+                type="button"
+                disabled
+                className="flex w-full items-center justify-between rounded-full bg-ink px-5 py-3 font-semibold text-paper disabled:opacity-40"
+              >
+                <span>Lanjut ke pembayaran</span>
+                <span className="price">{formatRupiah(order.total)}</span>
+              </button>
+              <p className="mt-2 text-center text-xs text-danger">Hapus atau ubah menu yang bermasalah dulu.</p>
+            </>
+          )}
         </div>
       </div>
     </div>

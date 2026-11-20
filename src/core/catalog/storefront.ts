@@ -17,6 +17,10 @@ export const SiteSettingsSchema = z.object({
   closeTime: hhmm.default("23:20"),
   timeZone: z.string().default("Asia/Jakarta"),
   whatsappNumber: z.string().default(""),
+  /** Payload QRIS statis pemilik; nominal disisipkan per pesanan. */
+  qrisPayload: z.string().default(""),
+  /** Batas waktu bayar sejak pesanan dibuat. */
+  paymentExpiryMinutes: z.number().int().min(5).max(240).default(60),
   announcement: z.string().nullish(),
   emergencyClosed: z.boolean().default(false),
 });

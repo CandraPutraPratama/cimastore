@@ -1,7 +1,7 @@
 # Jasdor v2 - Arsitektur & Rencana Bangun
 
-Status: Tahap 0, 1, dan 2 selesai. Tahap 2: beranda brand + status jam layanan, pilih outlet (cari, toleran salah ketik, urut lokasi), menu per outlet, lembar pilihan varian, keranjang struk dengan perhitungan promo. Berikutnya Tahap 3 (checkout, QRIS, WhatsApp, Telegram).
-Tanggal: 20 November 2026
+Status: Tahap 0 sampai 3 selesai. Tahap 3: checkout, QRIS dengan nominal terisi, halaman status pesanan, pesan WhatsApp ke admin, notifikasi + tombol status Telegram, kedaluwarsa otomatis. Berikutnya Tahap 4 (panel admin).
+Tanggal: 21 November 2026
 
 ---
 
@@ -186,17 +186,23 @@ Chagee dan Chatime memakai format data yang sama, jadi berbagi satu konverter (`
 ## 5. Alur pesanan
 
 1. Customer pilih brand → cari outlet → buka menu → atur kustomisasi → masuk keranjang.
-   Satu keranjang = satu outlet (karena pickup di satu tempat). Ganti outlet berarti konfirmasi kosongkan keranjang.
-2. Checkout: nama, nomor WA, pickup sekarang atau dijadwalkan (dibatasi jam buka jasdor dan outlet). Untuk McD, customer juga mengetik outlet tujuan.
-3. Server memvalidasi (outlet buka, produk tersedia, opsi valid), menghitung harga, lalu menyimpan pesanan dengan snapshot item dan harga.
-4. Halaman bayar: QRIS statis, ID pesanan, timer kedaluwarsa, tombol "Saya Sudah Bayar".
-5. Setelah konfirmasi: notifikasi Telegram ke admin + tombol kirim pesan terstruktur ke WhatsApp.
-6. Admin memproses status: `menunggu_pembayaran` → `menunggu_konfirmasi` → `antrian` → `diproses` → `selesai` (atau `dibatalkan` / `kedaluwarsa`). Setiap perubahan dicatat di `order_events`.
-7. Cron membatalkan otomatis pesanan yang tidak dibayar sampai batas waktu.
+   Satu keranjang = satu outlet (karena pickup di satu tempat).
+2. Checkout (`/[brand]/[outlet]/checkout`): nama, nomor WA, ambil "secepatnya" atau jam tertentu hari ini (slot 15 menit, minimal 10 menit dari sekarang, dibatasi jam jasdor dan jam outlet). Nama & nomor diingat di browser customer.
+3. Server (`POST /api/orders`) menghitung ulang semuanya dari menu terbaru dengan fungsi yang sama dengan keranjang (`priceCart`). Bila total beda dengan yang dilihat customer, pesanan ditolak dan halaman memuat harga baru. Pesanan disimpan dengan snapshot item, rencana transaksi + voucher, dan hash token akses.
+4. Halaman pesanan (`/pesanan/<ID>?t=<token>`): total besar, QRIS dengan nominal sudah terisi, nama merchant + NMID, sisa waktu bayar (default 60 menit), tombol simpan gambar QR, cara bayar.
+5. Tombol "Sudah bayar, kirim bukti ke WhatsApp" sekaligus: (a) memindahkan pesanan ke `antrian` (seperti v1, supaya admin tidak klik dua kali), (b) membuka WhatsApp admin dengan pesan terstruktur (wajib lampirkan foto bukti bayar, link pantau pesanan, rincian, total). Admin menerima notifikasi Telegram.
+6. Admin mengubah status lewat tombol di notifikasi Telegram: `antrian` → `diproses` (Sedang dibelikan) → `selesai`, atau `dibatalkan`. Pesan Telegram ikut diperbarui. Batal setelah bayar otomatis ditandai perlu refund. Halaman pesanan customer memperbarui status sendiri tiap 10 detik.
+7. Pesanan yang tidak dibayar sampai batas waktu menjadi `kedaluwarsa` (dicek setiap pesanan dibuka/diubah; `POST /api/cron/expire-orders` untuk merapikan sisanya). Customer yang terlanjur bayar diarahkan chat admin; admin bisa menerima pesanan kedaluwarsa kembali ke antrian.
 
-Akses halaman pesanan pakai token rahasia per pesanan (seperti v1), bukan cuma ID.
+Akses halaman pesanan pakai token rahasia per pesanan (seperti v1), bukan cuma ID. Database hanya menyimpan SHA-256 token. API memakai header `x-order-token`.
 
----
+### Pesanan (Tahap 3)
+
+- Inti murni di `src/core/orders/`: `status.ts` (siapa boleh memindah status ke mana), `pickup.ts` (jam ambil), `checkout.ts` (validasi & pembersihan input: nomor WA jadi `62...`, karakter kontrol dibuang supaya isi pesan WA/Telegram tidak bisa dipalsukan), `cart.ts` (`priceCart`, dipakai browser dan server), `messages.ts` (pesan WhatsApp, pesan + tombol Telegram), `id.ts`, `record.ts`. QRIS di `src/core/qris/qris.ts`.
+- **QRIS dengan nominal**: dari payload QRIS statis pemilik (Cimatix_id, NMID ID1025374796700, GoPay + DANA), tag 01 diubah ke dinamis, tag 54 (nominal) disisipkan, CRC dihitung ulang. Merchant dan rekening penerima tidak berubah (dites: semua field lain identik). Payload disimpan di `site_settings.qrisPayload` dan dicek CRC-nya sebelum dipakai.
+- Database (`supabase/migrations/20261121000004_orders.sql`): `order_create`, `order_get`, `order_transition` (ubah status atomik + catat `order_events`), `order_expire_due`, `order_set_telegram`, `site_settings_get`. Semua hanya untuk `service_role`.
+- Pengaman: maksimal 3 pesanan belum dibayar per nomor WA dalam 1 jam; body request maksimal 32 KB; halaman pesanan & checkout `no-store`, `noindex`, `Referrer-Policy: no-referrer`.
+- Telegram: bot khusus v2 (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET`). Notifikasi berisi **panduan beli**: tiap transaksi beserta voucher dan item yang dibeli di transaksi itu. Webhook menolak request tanpa secret, dan hanya ID admin yang boleh menekan tombol. Webhook baru bisa dipasang setelah website online (`npm run telegram:webhook`).
 
 ### Tampilan customer (Tahap 2)
 
@@ -297,8 +303,18 @@ Catatan McD: tanpa data outlet (customer mengetik outlet sendiri). Menunya punya
 - Chagee: 1 item = 30%, 2 item = 50%, 3 item = 50% + 30%.
 - Kustomisasi KK dari `kustomisasi-kopken.json` (pemilik, 20 Nov), harga add-on KK dari v1. Kustomisasi Fore dari v1. Minuman tanpa data kustomisasi tidak dijual sampai datanya ada.
 
+### Diputuskan saat Tahap 3 (21 Nov 2026)
+
+- "Sudah bayar" dari customer langsung masuk antrian (mengikuti v1). Admin mengecek bukti bayar di WhatsApp.
+- QRIS ditampilkan dengan nominal terisi (dibuat dari QRIS statis pemilik), batas bayar 60 menit (bisa diubah di `site_settings.paymentExpiryMinutes`).
+- Nomor WA admin sama dengan v1 (6287793420768).
+- Format pesan WhatsApp mengikuti v1 (wajib lampirkan foto bukti bayar, link pantau pesanan).
+
 ### Masih terbuka
 
 1. Mixue: aturan minimal belanja Rp40.000 terhadap Boba Sundae (menunggu data Mixue). Sementara mesin harga menghitung minimal belanja setelah potongan promo item.
 2. Foto Chagee: cari dari sumber resmi Chagee, bukan dari server pihak ketiga.
 3. Fee Chagee, Chatime, Mixue (diisi 0 dulu).
+4. Uji bayar sungguhan QRIS bernominal dari beberapa aplikasi (GoPay, DANA, m-banking) sebelum go-live.
+5. Bot Telegram v2 + pemasangan webhook menunggu website online di subdomain uji (Tahap 6). Penjadwal `expire-orders` (GitHub Actions) juga di Tahap 6.
+6. Checkout McD (outlet diketik customer) menyusul bersama data menu McD (Tahap 5).

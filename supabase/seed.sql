@@ -40,8 +40,9 @@ values (
     "openTime": "08:00",
     "closeTime": "23:20",
     "timeZone": "Asia/Jakarta",
-    "whatsappNumber": "",
-    "qrisImageKey": null,
+    "whatsappNumber": "6287793420768",
+    "qrisPayload": "00020101021126610014COM.GO-JEK.WWW01189360091435771140150210G5771140150303UMI27570011ID.DANA.WWW011893600915083380671102098338067110303UMI51440014ID.CO.QRIS.WWW0215ID10253747967000303UMI5204573253033605802ID5910Cimatix_id6008SIDOARJO61056125262070703A016304F702",
+    "paymentExpiryMinutes": 60,
     "announcement": null,
     "emergencyClosed": false
   }'::jsonb

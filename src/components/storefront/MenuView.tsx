@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
-import { priceLine, type PricedLine } from "@/core/catalog/selection";
-import { menuPricingConfig, resolveMenuProduct, startingPrice, type MenuPayload } from "@/core/catalog/storefront";
+import { resolveMenuProduct, startingPrice, type MenuPayload } from "@/core/catalog/storefront";
 import { formatRupiah } from "@/core/money/format";
-import { priceOrder } from "@/core/pricing/engine";
+import { priceCart } from "@/core/orders/cart";
 import { CartSheet, type CartRow } from "./CartSheet";
 import { ProductImage } from "./ProductImage";
 import { ProductSheet } from "./ProductSheet";
@@ -26,18 +25,14 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
   );
 
   // Harga keranjang selalu dihitung ulang dari menu terbaru (harga bisa berubah sejak ditambahkan).
-  const { rows, order } = useMemo(() => {
-    const priced: PricedLine[] = [];
-    const rows: CartRow[] = items.map((item) => {
-      const product = resolveMenuProduct(menu, item.productId);
-      if (!product) {
-        return { key: item.key, name: "Menu tidak tersedia", details: "", quantity: item.quantity, lineTotal: 0, problem: "Menu ini sudah tidak dijual di outlet ini." };
-      }
-      const result = priceLine(product, { productId: item.productId, quantity: item.quantity, optionIds: item.optionIds, note: item.note });
+  // Fungsi yang sama dipakai server saat membuat pesanan.
+  const { rows, order, hasProblems } = useMemo(() => {
+    const cart = priceCart(menu, items);
+    const rows: CartRow[] = cart.results.map((result, i) => {
+      const item = items[i];
       if (!result.ok) {
-        return { key: item.key, name: product.name, details: "", quantity: item.quantity, lineTotal: 0, problem: result.errors[0].message };
+        return { key: item.key, name: result.name ?? "Menu tidak tersedia", details: "", quantity: item.quantity, lineTotal: 0, problem: result.message };
       }
-      priced.push(result.line);
       return {
         key: item.key,
         name: result.line.name,
@@ -47,7 +42,7 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
         lineTotal: result.line.unitPrice * item.quantity,
       };
     });
-    return { rows, order: priceOrder(priced, menuPricingConfig(menu)) };
+    return { rows, order: cart.order, hasProblems: cart.hasProblems };
   }, [items, menu]);
 
   const openProduct = openProductId ? resolveMenuProduct(menu, openProductId) : null;
@@ -192,6 +187,7 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
           rows={rows}
           order={order}
           maxItems={menu.brand.maxItemsPerOrder}
+          checkoutHref={hasProblems ? null : `/${menu.brand.slug}/${encodeURIComponent(menu.outlet.code)}/checkout`}
           onQuantity={setQuantity}
           onClose={closeCart}
         />

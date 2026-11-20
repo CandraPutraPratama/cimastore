@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { RecentOrders } from "@/components/order/RecentOrders";
 import { ServiceStatus } from "@/components/storefront/ServiceStatus";
 import { getHome } from "@/server/catalog";
 
@@ -21,6 +22,8 @@ export default async function Home() {
           <p className="mt-4 rounded-xl bg-marigold/20 px-4 py-3 text-sm">{settings.announcement}</p>
         ) : null}
       </header>
+
+      <RecentOrders />
 
       <section aria-labelledby="pilih-brand" className="flex-1 border-t border-line">
         <h2 id="pilih-brand" className="px-5 pt-5 pb-2 text-sm font-semibold text-ink-soft">
