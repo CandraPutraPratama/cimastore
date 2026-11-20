@@ -7,7 +7,7 @@ export function ProductImage({ src, name, className }: { src?: string; name: str
   const [failed, setFailed] = useState(false);
   if (!src || failed) {
     return (
-      <span aria-hidden className={`grid place-items-center bg-mist text-xl font-bold text-ink-faint ${className}`}>
+      <span aria-hidden className={`grid place-items-center bg-spark/60 font-display text-2xl font-semibold text-ink ${className}`}>
         {name.trim().charAt(0).toUpperCase()}
       </span>
     );

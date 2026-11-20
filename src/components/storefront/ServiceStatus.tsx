@@ -21,11 +21,11 @@ export function ServiceStatus({ settings, now }: { settings: SiteSettings; now: 
     status.state === "open"
       ? "bg-hemat-soft text-hemat"
       : status.state === "tentative"
-        ? "bg-marigold/20 text-ink"
-        : "bg-mist text-ink-soft";
+        ? "bg-spark text-ink"
+        : "bg-paper text-ink-soft";
 
   return (
-    <p className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${tone}`}>
+    <p className={`inline-flex items-center gap-2 rounded-full border-2 border-ink px-3 py-1 text-sm font-bold ${tone}`}>
       <span aria-hidden className={`size-2 rounded-full ${status.state === "open" ? "bg-hemat" : status.state === "tentative" ? "bg-marigold-deep" : "bg-ink-faint"}`} />
       {text}
     </p>

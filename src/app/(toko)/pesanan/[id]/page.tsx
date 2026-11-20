@@ -20,9 +20,9 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
   if (!order || !token) {
     return (
       <main className="flex flex-1 flex-col items-start gap-3 px-5 py-10">
-        <h1 className="text-2xl font-extrabold tracking-tight">Pesanan tidak ditemukan</h1>
+        <h1 className="text-3xl font-semibold">Pesanan tidak ditemukan</h1>
         <p className="text-ink-soft">Buka lagi link pesanan dari HP yang dipakai memesan, atau dari pesan WhatsApp ke admin.</p>
-        <Link href="/" className="rounded-full bg-ink px-5 py-3 font-semibold text-paper">
+        <Link href="/" className="btn px-5 py-3">
           Ke halaman utama
         </Link>
       </main>

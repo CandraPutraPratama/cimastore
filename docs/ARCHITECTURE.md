@@ -358,3 +358,12 @@ Catatan McD: tanpa data outlet (customer mengetik outlet sendiri). Menunya punya
 6. Checkout McD (outlet diketik customer) menyusul bersama data menu McD (Tahap 5).
 7. Data brand lama (KK, Fore, Chagee, Chatime) masih diimpor lewat `npm run db:import` di laptop karena punya opsi dan harga per outlet; impor CSV di admin untuk brand sederhana (Mixue, McD, brand baru).
 8. Foto produk dari CSV memakai alamat web apa adanya; untuk brand dengan foto sendiri pakai `npm run foto:upload`. Logo brand belum punya tempat unggah (kolom `logo_url` ada, belum dipakai tampilan).
+
+
+## Tema tampilan (komik doodle)
+
+- Mengikuti logo: outline cokelat tua tebal (2.5px), bayangan keras tanpa blur, latar krem, warna datar. Font judul Fredoka, teks Plus Jakarta Sans.
+- Token warna dan kelas komponen (`panel`, `panel-press`, `btn`, `btn-ghost`, `chip`, `sticker`, `field`, `choice`, `bubble`, `outline-letter`, `marker`) ada di `src/app/globals.css`, di `@layer components` supaya utilitas Tailwind tetap bisa menimpa.
+- Aksen tiap brand tetap dari data (`brand.theme.accent`), dipakai sebagai warna kotak inisial brand. Huruf inisial memakai `outline-letter` agar terbaca di atas warna apa pun.
+- Logo: `public/logo-jasdor.webp` (hero beranda), `src/app/icon.png`, `apple-icon.png`, `favicon.ico` dibuat dari logo yang sama.
+- Hero beranda: maskot + balon bicara (animasi muncul satu kali, mati bila `prefers-reduced-motion`).

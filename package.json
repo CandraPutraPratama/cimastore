@@ -23,6 +23,7 @@
     "telegram:webhook": "tsx scripts/telegram-webhook.ts"
   },
   "dependencies": {
+    "@fontsource-variable/fredoka": "^5.3.0",
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
     "@supabase/supabase-js": "^2.119.2",
     "next": "16.4.6",

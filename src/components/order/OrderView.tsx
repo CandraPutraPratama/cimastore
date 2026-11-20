@@ -132,7 +132,7 @@ export function OrderView({ initialOrder, token, payment, serverNow }: Props) {
   );
 
   const details = (
-    <section className="mt-6 border-t border-line bg-mist px-4 py-5" aria-labelledby="judul-rincian">
+    <section className="mt-6 border-t-[2.5px] border-ink bg-mist px-4 py-5" aria-labelledby="judul-rincian">
       <h2 id="judul-rincian" className="px-1 text-lg font-bold">
         Rincian pesanan
       </h2>
@@ -153,7 +153,7 @@ export function OrderView({ initialOrder, token, payment, serverNow }: Props) {
             Total bayar
           </h1>
           <div className="flex flex-wrap items-end justify-between gap-3">
-            <p className="price text-[2.75rem] leading-none font-extrabold tracking-tight">{formatRupiah(order.total)}</p>
+            <p className="price font-display text-[2.75rem] leading-none font-bold">{formatRupiah(order.total)}</p>
             <CopyButton text={String(order.total)} label="Salin nominal" />
           </div>
           <p className="mt-2 text-sm" aria-live="polite">
@@ -163,9 +163,9 @@ export function OrderView({ initialOrder, token, payment, serverNow }: Props) {
         </section>
 
         {payment.qris ? (
-          <section className="mx-5 mt-5 rounded-3xl border border-line p-5" aria-label="Kode QRIS">
+          <section className="panel mx-5 mt-5 p-5" aria-label="Kode QRIS">
             <div className="flex items-baseline justify-between gap-3">
-              <p className="text-lg font-extrabold tracking-tight">QRIS</p>
+              <p className="font-display text-xl font-semibold">QRIS</p>
               <p className="text-right text-sm">
                 <span className="block font-semibold">{payment.merchantName}</span>
                 {payment.nmid ? <span className="block text-xs text-ink-faint">NMID {payment.nmid}</span> : null}
@@ -178,7 +178,7 @@ export function OrderView({ initialOrder, token, payment, serverNow }: Props) {
             <SaveQrButton payload={payment.qris} orderId={order.id} lines={[formatRupiah(order.total), `${payment.merchantName ?? ""} - ${order.id}`]} />
           </section>
         ) : (
-          <p className="mx-5 mt-5 rounded-xl bg-marigold/20 px-4 py-3 text-sm">
+          <p className="panel mx-5 mt-5 bg-spark px-4 py-3 text-sm">
             QRIS sedang bermasalah. <a href={chatAdmin} target="_blank" rel="noopener" className="font-semibold underline">Chat admin</a> untuk cara bayar.
           </p>
         )}
@@ -199,7 +199,7 @@ export function OrderView({ initialOrder, token, payment, serverNow }: Props) {
 
         {details}
 
-        <div className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] border-t border-line bg-paper px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] border-t-[2.5px] border-ink bg-paper px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           {notice ? (
             <p role="alert" className="mb-2 text-sm font-semibold text-danger">
               {notice}
@@ -210,7 +210,7 @@ export function OrderView({ initialOrder, token, payment, serverNow }: Props) {
             target="_blank"
             rel="noopener"
             onClick={confirmPaid}
-            className="flex w-full items-center justify-center rounded-full bg-ink px-5 py-3.5 text-center font-semibold text-paper"
+            className="btn flex w-full items-center justify-center px-5 py-3.5"
           >
             Sudah bayar, kirim bukti ke WhatsApp
           </a>
@@ -230,17 +230,17 @@ export function OrderView({ initialOrder, token, payment, serverNow }: Props) {
       <main className="flex flex-1 flex-col pb-10">
         {header}
         <section className="px-5 pt-6">
-          <h1 className="text-2xl font-extrabold tracking-tight">{expired ? "Batas bayar habis" : "Pesanan dibatalkan"}</h1>
+          <h1 className="text-3xl font-semibold">{expired ? "Batas bayar habis" : "Pesanan dibatalkan"}</h1>
           <p className="mt-2 text-ink-soft">
             {expired
               ? "Pesanan ini dibatalkan otomatis karena belum dibayar."
               : `${order.cancellationReason ? `${order.cancellationReason}. ` : ""}Kalau kamu sudah bayar, admin menghubungimu untuk pengembalian dana.`}
           </p>
           <div className="mt-5 flex flex-col gap-2">
-            <Link href={menuHref} className="rounded-full bg-ink px-5 py-3 text-center font-semibold text-paper">
+            <Link href={menuHref} className="btn px-5 py-3">
               Pesan lagi
             </Link>
-            <a href={expired ? paidLate : chatAdmin} target="_blank" rel="noopener" className="rounded-full border border-line px-5 py-3 text-center font-semibold">
+            <a href={expired ? paidLate : chatAdmin} target="_blank" rel="noopener" className="btn-ghost px-5 py-3">
               {expired ? "Sudah terlanjur bayar? Chat admin" : "Chat admin"}
             </a>
           </div>
@@ -256,29 +256,29 @@ export function OrderView({ initialOrder, token, payment, serverNow }: Props) {
     <main className="flex flex-1 flex-col pb-10">
       {header}
       <section className="px-5 pt-6" aria-live="polite">
-        <h1 className="text-2xl font-extrabold tracking-tight">{copy.title}</h1>
+        <h1 className="text-3xl font-semibold">{copy.title}</h1>
         <p className="mt-2 text-ink-soft">{copy.body}</p>
         <ol className="mt-5 grid grid-cols-3 gap-2" aria-label="Progres pesanan">
           {PROGRESS.map((step, i) => {
             const done = currentStep >= i;
             return (
               <li key={step.status} aria-current={i === currentStep ? "step" : undefined}>
-                <span className={`block h-1.5 rounded-full ${done ? "bg-hemat" : "bg-line"}`} />
+                <span className={`block h-3 rounded-full border-2 border-ink ${done ? "bg-hemat" : "bg-paper"}`} />
                 <span className={`mt-1.5 block text-sm ${i === currentStep ? "font-bold" : done ? "text-ink-soft" : "text-ink-faint"}`}>{step.label}</span>
               </li>
             );
           })}
         </ol>
-        <p className="mt-5 rounded-xl bg-mist px-4 py-3 text-sm">
+        <p className="mt-5 rounded-xl border-2 border-dashed border-ink/40 bg-mist px-4 py-3 text-sm">
           Ambil di <span className="font-semibold">{order.outletLabel}</span>. {pickup}.
         </p>
         <div className="mt-4 flex flex-col gap-2">
           {order.status !== "selesai" ? (
-            <a href={payment.whatsappUrl} target="_blank" rel="noopener" className="rounded-full bg-ink px-5 py-3 text-center font-semibold text-paper">
+            <a href={payment.whatsappUrl} target="_blank" rel="noopener" className="btn px-5 py-3">
               Kirim bukti bayar di WhatsApp
             </a>
           ) : null}
-          <a href={chatAdmin} target="_blank" rel="noopener" className="rounded-full border border-line px-5 py-3 text-center font-semibold">
+          <a href={chatAdmin} target="_blank" rel="noopener" className="btn-ghost px-5 py-3">
             Chat admin
           </a>
         </div>
@@ -302,7 +302,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
           // Clipboard diblokir browser: abaikan.
         }
       }}
-      className="rounded-full border border-line px-3.5 py-1.5 text-sm font-semibold"
+      className="btn-ghost px-3.5 py-1.5 text-sm"
     >
       {done ? "Tersalin" : label}
     </button>
@@ -328,7 +328,7 @@ function SaveQrButton({ payload, orderId, lines }: { payload: string; orderId: s
           setState("failed");
         }
       }}
-      className="mt-3 w-full rounded-full border border-line px-4 py-2.5 text-sm font-semibold"
+      className="btn-ghost mt-3 w-full px-4 py-2.5 text-sm"
     >
       {state === "saved" ? "Gambar QR tersimpan" : state === "failed" ? "Gagal menyimpan, coba screenshot" : "Simpan gambar QR"}
     </button>

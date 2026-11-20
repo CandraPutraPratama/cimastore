@@ -17,13 +17,13 @@ export default async function BrandPage({ params }: PageProps<"/[brand]">) {
 
   return (
     <main className="flex flex-1 flex-col">
-      <header className="px-5 pt-5 pb-4">
-        <Link href="/" className="text-sm font-semibold text-ink-soft hover:text-ink">
-          Ganti brand
+      <header className="border-b-[2.5px] border-ink bg-mist px-5 pt-5 pb-4">
+        <Link href="/" className="chip px-3 py-1 text-sm">
+          ← Ganti brand
         </Link>
         <div className="mt-3 flex items-center gap-3">
-          <span aria-hidden className="h-8 w-1.5 rounded-full" style={{ background: data.brand.theme.accent ?? "var(--color-ink)" }} />
-          <h1 className="text-2xl font-extrabold tracking-tight">{data.brand.name}</h1>
+          <span aria-hidden className="h-9 w-3 rounded-md border-2 border-ink" style={{ background: data.brand.theme.accent ?? "var(--color-ink)" }} />
+          <h1 className="text-3xl font-semibold">{data.brand.name}</h1>
         </div>
         <p className="mt-1 text-ink-soft">Pilih outlet tempat kamu mengambil pesanan.</p>
       </header>

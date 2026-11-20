@@ -22,7 +22,7 @@ interface Props {
 
 const noSubscribe = () => () => {};
 const inputClass =
-  "mt-1.5 block w-full rounded-xl border border-line bg-paper px-4 py-3 text-base outline-none focus:border-ink aria-[invalid=true]:border-danger";
+  "field mt-1.5 block aria-[invalid=true]:border-danger";
 
 export function CheckoutForm({ menu, pickup, readyAt, expiryMinutes }: Props) {
   const router = useRouter();
@@ -65,7 +65,7 @@ export function CheckoutForm({ menu, pickup, readyAt, expiryMinutes }: Props) {
       <div className="flex flex-1 flex-col items-start gap-3 px-5 py-10">
         <p className="text-lg font-bold">{cart.hasProblems ? "Ada menu di keranjang yang berubah." : "Keranjangmu masih kosong."}</p>
         <p className="text-ink-soft">{cart.hasProblems ? "Cek lagi keranjangmu sebelum checkout." : "Pilih menu dulu, lalu kembali ke sini."}</p>
-        <Link href={menuHref} className="rounded-full bg-ink px-5 py-3 font-semibold text-paper">
+        <Link href={menuHref} className="btn px-5 py-3">
           Kembali ke menu
         </Link>
       </div>
@@ -168,17 +168,17 @@ export function CheckoutForm({ menu, pickup, readyAt, expiryMinutes }: Props) {
         </label>
       </section>
 
-      <section className="border-t border-line px-5 py-5" aria-labelledby="judul-ambil">
+      <section className="border-t-2 border-dashed border-ink/30 px-5 py-5" aria-labelledby="judul-ambil">
         <h2 id="judul-ambil" className="text-lg font-bold">
           Waktu ambil
         </h2>
         <p className="text-sm text-ink-soft">di {menu.outlet.name}</p>
         {blocked ? (
-          <p className="mt-3 rounded-xl bg-mist px-4 py-3 text-sm">{pickup.reason}</p>
+          <p className="mt-3 rounded-xl border-2 border-dashed border-ink/40 bg-mist px-4 py-3 text-sm">{pickup.reason}</p>
         ) : (
           <div className="mt-3 grid gap-2" role="radiogroup" aria-label="Waktu ambil">
             {pickup.nowAvailable ? (
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-line px-4 py-3 has-[input:checked]:border-ink has-[input:checked]:bg-mist">
+              <label className="choice flex cursor-pointer items-center gap-3 px-4 py-3">
                 <input type="radio" name="pickup" checked={mode === "now"} onChange={() => setMode("now")} className="size-4 accent-ink" />
                 <span>
                   <span className="block font-semibold">Secepatnya</span>
@@ -187,7 +187,7 @@ export function CheckoutForm({ menu, pickup, readyAt, expiryMinutes }: Props) {
               </label>
             ) : null}
             {pickup.slots.length > 0 ? (
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-line px-4 py-3 has-[input:checked]:border-ink has-[input:checked]:bg-mist">
+              <label className="choice flex cursor-pointer items-center gap-3 px-4 py-3">
                 <input type="radio" name="pickup" checked={mode === "scheduled"} onChange={() => setMode("scheduled")} className="size-4 accent-ink" />
                 <span className="flex flex-1 flex-wrap items-center justify-between gap-2">
                   <span className="font-semibold">Pilih jam hari ini</span>
@@ -198,7 +198,7 @@ export function CheckoutForm({ menu, pickup, readyAt, expiryMinutes }: Props) {
                       setTime(e.target.value);
                       setMode("scheduled");
                     }}
-                    className="rounded-lg border border-line bg-paper px-3 py-1.5 text-base"
+                    className="field w-auto px-3 py-1.5"
                   >
                     {pickup.slots.map((slot) => (
                       <option key={slot} value={slot}>
@@ -213,14 +213,14 @@ export function CheckoutForm({ menu, pickup, readyAt, expiryMinutes }: Props) {
         )}
       </section>
 
-      <section className="border-t border-line bg-mist px-4 py-5" aria-labelledby="judul-rincian">
+      <section className="border-t-[2.5px] border-ink bg-mist px-4 py-5" aria-labelledby="judul-rincian">
         <h2 id="judul-rincian" className="px-1 pb-3 text-lg font-bold">
           Rincian
         </h2>
         <OrderSummary lines={lines} totals={{ ...order }} />
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] border-t border-line bg-paper px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <div className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] border-t-[2.5px] border-ink bg-paper px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         {error ? (
           <p role="alert" className="mb-2 text-sm font-semibold text-danger">
             {error}
@@ -229,7 +229,7 @@ export function CheckoutForm({ menu, pickup, readyAt, expiryMinutes }: Props) {
         <button
           type="submit"
           disabled={submitting || blocked}
-          className="flex w-full items-center justify-between rounded-full bg-ink px-5 py-3 font-semibold text-paper disabled:opacity-40"
+          className="btn flex w-full items-center justify-between px-5 py-3"
         >
           <span>{submitting ? "Membuat pesanan..." : "Buat pesanan"}</span>
           <span className="price">{formatRupiah(order.total)}</span>

@@ -58,20 +58,20 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
   return (
     <main className="flex flex-1 flex-col pb-28">
       <header className="px-5 pt-5 pb-3">
-        <Link href={`/${menu.brand.slug}`} className="text-sm font-semibold text-ink-soft hover:text-ink">
-          Ganti outlet
+        <Link href={`/${menu.brand.slug}`} className="chip px-3 py-1 text-sm">
+          ← Ganti outlet
         </Link>
         <div className="mt-3 flex items-center gap-3">
-          <span aria-hidden className="h-8 w-1.5 rounded-full" style={{ background: menu.brand.theme.accent ?? "var(--color-ink)" }} />
+          <span aria-hidden className="h-9 w-3 rounded-md border-2 border-ink" style={{ background: menu.brand.theme.accent ?? "var(--color-ink)" }} />
           <div className="min-w-0">
             <p className="text-sm font-semibold text-ink-soft">{menu.brand.name}</p>
-            <h1 className="truncate text-xl font-extrabold tracking-tight">{menu.outlet.name}</h1>
+            <h1 className="truncate text-2xl font-semibold">{menu.outlet.name}</h1>
           </div>
         </div>
         {menu.promos.length > 0 ? (
-          <ul className="mt-3 flex flex-wrap gap-1.5">
+          <ul className="mt-3 flex flex-wrap gap-2">
             {menu.promos.map((p) => (
-              <li key={p.id} className="rounded-md bg-hemat-soft px-2 py-0.5 text-xs font-semibold text-hemat">
+              <li key={p.id} className="sticker bg-hemat-soft text-hemat">
                 {p.name}
               </li>
             ))}
@@ -79,14 +79,14 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
         ) : null}
       </header>
 
-      <nav aria-label="Kategori menu" className="sticky top-0 z-20 border-y border-line bg-paper/95 backdrop-blur">
+      <nav aria-label="Kategori menu" className="sticky top-0 z-20 border-y-[2.5px] border-ink bg-mist">
         <ul className="flex gap-2 overflow-x-auto px-5 py-2.5 [scrollbar-width:none]">
           {byCategory.map((c) => (
             <li key={c.id} className="shrink-0">
               <button
                 type="button"
                 onClick={() => jumpTo(c.id)}
-                className="rounded-full border border-line px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap hover:border-ink"
+                className="chip px-3.5 py-1 text-sm whitespace-nowrap"
               >
                 {c.name}
               </button>
@@ -97,10 +97,10 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
 
       {byCategory.map((category) => (
         <section key={category.id} id={`kategori-${category.id}`} className="scroll-mt-14" aria-labelledby={`judul-${category.id}`}>
-          <h2 id={`judul-${category.id}`} className="px-5 pt-6 pb-1 text-lg font-bold">
-            {category.name}
+          <h2 id={`judul-${category.id}`} className="px-5 pt-6 pb-3 text-2xl font-semibold">
+            <span className="marker">{category.name}</span>
           </h2>
-          <ul>
+          <ul className="space-y-3 px-4">
             {category.products.map((product) => {
               const soldOut = product.status === "sold_out";
               const price = startingPrice(menu, product);
@@ -113,11 +113,11 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
                     type="button"
                     disabled={soldOut}
                     onClick={() => setOpenProductId(product.id)}
-                    className="flex w-full items-center gap-4 px-5 py-3 text-left transition-colors hover:bg-mist active:bg-mist disabled:cursor-not-allowed"
+                    className="panel panel-press flex w-full items-center gap-3 p-3 text-left disabled:cursor-not-allowed"
                   >
-                    <ProductImage src={product.imageUrl} name={product.name} className={`size-20 shrink-0 rounded-2xl ${soldOut ? "opacity-40 grayscale" : ""}`} />
+                    <ProductImage src={product.imageUrl} name={product.name} className={`size-20 shrink-0 rounded-xl border-2 border-ink ${soldOut ? "opacity-40 grayscale" : ""}`} />
                     <span className="min-w-0 flex-1">
-                      <span className={`block font-semibold ${soldOut ? "text-ink-faint" : ""}`}>{product.name}</span>
+                      <span className={`font-display block text-lg leading-snug font-semibold ${soldOut ? "text-ink-faint" : ""}`}>{product.name}</span>
                       {product.description ? (
                         <span className="mt-0.5 line-clamp-2 block text-sm text-ink-soft">{product.description}</span>
                       ) : null}
@@ -125,7 +125,7 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
                         {soldOut ? (
                           <span className="font-semibold text-ink-faint">Habis di outlet ini</span>
                         ) : (
-                          <span className="price font-semibold">
+                          <span className="price font-bold">
                             {hasChoice ? "mulai " : ""}
                             {formatRupiah(price)}
                           </span>
@@ -141,7 +141,7 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
       ))}
 
       {toast ? (
-        <p role="status" className="fixed inset-x-0 bottom-24 z-30 mx-auto w-fit max-w-[90%] rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper">
+        <p role="status" className="fixed inset-x-0 bottom-24 z-30 mx-auto w-fit max-w-[90%] rounded-full border-[2.5px] border-ink bg-spark px-4 py-2 text-sm font-bold shadow-[3px_3px_0_var(--color-ink)]">
           {toast}
         </p>
       ) : null}
@@ -151,12 +151,12 @@ export function MenuView({ menu }: { menu: MenuPayload }) {
           <button
             type="button"
             onClick={() => setCartOpen(true)}
-            className="flex w-full items-center justify-between gap-3 rounded-2xl bg-ink px-5 py-3.5 text-left text-paper shadow-lg"
+            className="btn w-full justify-between gap-3 rounded-2xl px-5 py-3 text-left"
           >
             <span>
               <span className="block font-semibold">Lihat pesanan ({order.itemCount} item)</span>
               {order.savings > 0 ? (
-                <span className="block text-sm text-marigold">Hemat {formatRupiah(order.savings)}</span>
+                <span className="mt-0.5 inline-block rounded-full border-2 border-ink bg-paper px-2 text-xs font-bold text-hemat">Hemat {formatRupiah(order.savings)}</span>
               ) : null}
             </span>
             <span className="price text-lg font-bold">{formatRupiah(order.total)}</span>

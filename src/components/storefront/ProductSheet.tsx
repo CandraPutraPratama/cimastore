@@ -98,16 +98,16 @@ export function ProductSheet({ product, imageUrl, description, maxQuantity, onAd
         aria-labelledby="judul-produk"
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="sheet-enter flex max-h-[92dvh] w-full max-w-[480px] flex-col overflow-hidden rounded-t-3xl bg-paper focus:outline-none"
+        className="sheet-enter flex max-h-[92dvh] w-full max-w-[480px] flex-col overflow-hidden rounded-t-3xl border-x-[2.5px] border-t-[2.5px] border-ink bg-paper focus:outline-none"
       >
         <div className="overflow-y-auto overscroll-contain">
           <div className={imageUrl ? "relative" : "relative h-14"}>
-            {imageUrl ? <ProductImage src={imageUrl} name={product.name} className="aspect-[4/3] w-full" /> : null}
+            {imageUrl ? <ProductImage src={imageUrl} name={product.name} className="aspect-[4/3] w-full border-b-[2.5px] border-ink" /> : null}
             <button
               type="button"
               onClick={onClose}
               aria-label="Tutup"
-              className="absolute top-3 right-3 grid size-10 place-items-center rounded-full bg-paper/95 text-xl font-semibold shadow"
+              className="absolute top-3 right-3 grid size-10 place-items-center rounded-full border-2 border-ink bg-paper text-xl font-semibold shadow-[2px_2px_0_var(--color-ink)]"
             >
               ×
             </button>
@@ -135,22 +135,22 @@ export function ProductSheet({ product, imageUrl, description, maxQuantity, onAd
                   : "Opsional, boleh lebih dari satu";
             const error = showErrors ? errorsByGroup.get(group.id) : undefined;
             return (
-              <fieldset key={group.id} className="border-t border-line px-5 py-4">
+              <fieldset key={group.id} className="border-t-2 border-dashed border-ink/30 px-5 py-4">
                 <legend className="sr-only">{group.name}</legend>
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="font-semibold" aria-hidden>
+                  <p className="font-display text-lg font-semibold" aria-hidden>
                     {group.name}
                   </p>
                   <p className={`text-xs ${error ? "font-semibold text-danger" : "text-ink-faint"}`}>{error ?? rule}</p>
                 </div>
-                <div className="mt-2">
+                <div className="mt-2 space-y-2">
                   {visible.map((option) => {
                     const checked = chosen.has(option.id);
                     const disabled = !checked && full;
                     return (
                       <label
                         key={option.id}
-                        className={`flex cursor-pointer items-center gap-3 py-2 ${disabled ? "cursor-not-allowed opacity-40" : ""}`}
+                        className={`choice flex cursor-pointer items-center gap-3 px-3 py-2 ${disabled ? "cursor-not-allowed opacity-40" : ""}`}
                       >
                         <input
                           type={group.selection === "single" ? "radio" : "checkbox"}
@@ -160,7 +160,7 @@ export function ProductSheet({ product, imageUrl, description, maxQuantity, onAd
                           onChange={() => toggle(gi, option.id)}
                           className="size-5 accent-[var(--color-ink)]"
                         />
-                        <span className="flex-1">{option.name}</span>
+                        <span className="flex-1 font-semibold">{option.name}</span>
                         {option.priceDelta > 0 ? (
                           <span className="price text-sm text-ink-soft">+{formatRupiah(option.priceDelta)}</span>
                         ) : null}
@@ -172,7 +172,7 @@ export function ProductSheet({ product, imageUrl, description, maxQuantity, onAd
             );
           })}
 
-          <div className="border-t border-line px-5 py-4">
+          <div className="border-t-2 border-dashed border-ink/30 px-5 py-4">
             <label htmlFor="catatan" className="font-semibold">
               Catatan <span className="font-normal text-ink-faint">(opsional)</span>
             </label>
@@ -183,13 +183,13 @@ export function ProductSheet({ product, imageUrl, description, maxQuantity, onAd
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Contoh: gulanya dipisah"
-              className="mt-2 w-full resize-none rounded-xl border border-line bg-mist px-3 py-2 text-base placeholder:text-ink-faint focus:border-ink focus:bg-paper focus:outline-none"
+              className="field mt-2 resize-none"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-3 border-t border-line bg-paper px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <div className="flex items-center rounded-full border border-line">
+        <div className="flex items-center gap-3 border-t-[2.5px] border-ink bg-paper px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <div className="flex items-center rounded-full border-2 border-ink bg-paper">
             <button
               type="button"
               aria-label="Kurangi jumlah"
@@ -216,7 +216,7 @@ export function ProductSheet({ product, imageUrl, description, maxQuantity, onAd
             type="button"
             onClick={submit}
             disabled={maxQuantity < 1}
-            className="flex flex-1 items-center justify-between gap-3 rounded-full bg-ink px-5 py-3 font-semibold text-paper disabled:opacity-40"
+            className="btn flex flex-1 items-center justify-between gap-3 px-5 py-3"
           >
             <span>{maxQuantity < 1 ? "Pesanan sudah penuh" : "Tambah"}</span>
             <span className="price">{formatRupiah(unitPrice * quantity)}</span>

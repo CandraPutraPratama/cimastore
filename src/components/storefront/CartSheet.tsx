@@ -54,13 +54,13 @@ export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQ
         aria-labelledby="judul-keranjang"
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="sheet-enter flex max-h-[92dvh] w-full max-w-[480px] flex-col rounded-t-3xl bg-mist focus:outline-none"
+        className="sheet-enter flex max-h-[92dvh] w-full max-w-[480px] flex-col rounded-t-3xl border-x-[2.5px] border-t-[2.5px] border-ink bg-mist focus:outline-none"
       >
         <div className="flex items-center justify-between px-5 pt-4 pb-3">
-          <h2 id="judul-keranjang" className="text-lg font-bold">
+          <h2 id="judul-keranjang" className="text-2xl font-semibold">
             Pesananmu
           </h2>
-          <button type="button" onClick={onClose} className="text-sm font-semibold text-ink-soft hover:text-ink">
+          <button type="button" onClick={onClose} className="chip px-3 py-1 text-sm">
             Tutup
           </button>
         </div>
@@ -70,7 +70,7 @@ export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQ
             {order.savings > 0 ? (
               <div className="border-b border-dashed border-line px-5 pt-5 pb-4 text-center">
                 <p className="text-sm font-semibold text-hemat">Kamu hemat</p>
-                <p className="price text-3xl font-extrabold text-hemat">{formatRupiah(order.savings)}</p>
+                <p className="price font-display text-4xl font-bold text-hemat">{formatRupiah(order.savings)}</p>
                 <p className="mt-1 text-xs text-ink-faint">dibanding harga normal di outlet</p>
               </div>
             ) : null}
@@ -96,7 +96,7 @@ export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQ
                       type="button"
                       aria-label={`Kurangi ${row.name}`}
                       onClick={() => onQuantity(row.key, row.quantity - 1)}
-                      className="grid size-8 place-items-center rounded-full border border-line text-lg"
+                      className="grid size-8 place-items-center rounded-full border-2 border-ink bg-paper text-lg"
                     >
                       −
                     </button>
@@ -106,7 +106,7 @@ export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQ
                       aria-label={`Tambah ${row.name}`}
                       onClick={() => onQuantity(row.key, row.quantity + 1)}
                       disabled={full || Boolean(row.problem)}
-                      className="grid size-8 place-items-center rounded-full border border-line text-lg disabled:opacity-30"
+                      className="grid size-8 place-items-center rounded-full border-2 border-ink bg-paper text-lg disabled:opacity-30"
                     >
                       +
                     </button>
@@ -144,7 +144,7 @@ export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQ
           <div aria-hidden className="receipt-edge" />
 
           {order.hint ? (
-            <p className="mt-3 rounded-xl bg-marigold/20 px-4 py-3 text-sm">
+            <p className="panel mt-3 bg-spark px-4 py-3 text-sm">
               Tambah <span className="price font-semibold">{formatRupiah(order.hint.amountNeeded)}</span> lagi untuk dapat{" "}
               {order.hint.promoName}.
             </p>
@@ -152,11 +152,11 @@ export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQ
           {full ? <p className="mt-3 text-sm text-ink-soft">Satu pesanan maksimal {maxItems} item.</p> : null}
         </div>
 
-        <div className="border-t border-line bg-paper px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="border-t-[2.5px] border-ink bg-paper px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           {checkoutHref && order.itemCount > 0 ? (
             <Link
               href={checkoutHref}
-              className="flex w-full items-center justify-between rounded-full bg-ink px-5 py-3 font-semibold text-paper"
+              className="btn flex w-full items-center justify-between px-5 py-3"
             >
               <span>Lanjut ke pembayaran</span>
               <span className="price">{formatRupiah(order.total)}</span>
@@ -166,7 +166,7 @@ export function CartSheet({ outletName, rows, order, maxItems, checkoutHref, onQ
               <button
                 type="button"
                 disabled
-                className="flex w-full items-center justify-between rounded-full bg-ink px-5 py-3 font-semibold text-paper disabled:opacity-40"
+                className="btn flex w-full items-center justify-between px-5 py-3"
               >
                 <span>Lanjut ke pembayaran</span>
                 <span className="price">{formatRupiah(order.total)}</span>

@@ -67,7 +67,7 @@ export function OutletPicker({ brand, initial }: { brand: string; initial: Outle
 
   return (
     <section className="flex flex-1 flex-col" aria-label="Daftar outlet">
-      <div className="sticky top-0 z-10 border-b border-line bg-paper px-5 pt-1 pb-3">
+      <div className="sticky top-0 z-10 border-b-[2.5px] border-ink bg-mist px-5 pt-3 pb-3">
         <label htmlFor="cari-outlet" className="sr-only">
           Cari outlet
         </label>
@@ -79,7 +79,7 @@ export function OutletPicker({ brand, initial }: { brand: string; initial: Outle
           placeholder="Cari nama outlet, mall, atau kota"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full rounded-xl border border-line bg-mist px-4 py-3 text-base placeholder:text-ink-faint focus:border-ink focus:bg-paper focus:outline-none"
+          className="field"
         />
         <div className="mt-2 flex items-center justify-between gap-3 text-sm">
           <button
@@ -107,15 +107,15 @@ export function OutletPicker({ brand, initial }: { brand: string; initial: Outle
         </p>
       ) : null}
 
-      <ul className={loading ? "opacity-60" : undefined}>
+      <ul className={`space-y-3 px-4 py-4 ${loading ? "opacity-60" : ""}`}>
         {data.outlets.map((outlet) => (
-          <li key={outlet.code} className="border-b border-line last:border-b-0">
+          <li key={outlet.code}>
             <Link
               href={`/${brand}/${encodeURIComponent(outlet.code)}`}
-              className="block px-5 py-4 transition-colors hover:bg-mist active:bg-mist"
+              className="panel panel-press block p-4"
             >
               <span className="flex items-baseline justify-between gap-3">
-                <span className="text-lg font-semibold">{outlet.name}</span>
+                <span className="font-display text-lg leading-snug font-semibold">{outlet.name}</span>
                 {outlet.distanceKm !== undefined ? (
                   <span className="price shrink-0 text-sm font-semibold text-ink-soft">
                     {outlet.distanceKm < 1 ? `${Math.round(outlet.distanceKm * 1000)} m` : `${outlet.distanceKm.toFixed(1).replace(".", ",")} km`}

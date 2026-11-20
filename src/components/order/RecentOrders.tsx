@@ -22,13 +22,13 @@ export function RecentOrders() {
   if (orders.length === 0) return null;
   return (
     <section className="px-5 pt-5" aria-labelledby="judul-pesanan-terakhir">
-      <h2 id="judul-pesanan-terakhir" className="text-sm font-semibold text-ink-soft">
+      <h2 id="judul-pesanan-terakhir" className="text-xl font-semibold">
         Pesananmu hari ini
       </h2>
-      <ul className="mt-2 space-y-2">
+      <ul className="mt-3 space-y-3">
         {orders.map((o) => (
           <li key={o.id}>
-            <Link href={o.path} className="flex items-center justify-between gap-3 rounded-xl border border-line px-4 py-3 hover:border-ink">
+            <Link href={o.path} className="panel panel-press flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
               <span className="min-w-0">
                 <span className="block truncate font-semibold">
                   {o.brandName} di {o.outletName}
