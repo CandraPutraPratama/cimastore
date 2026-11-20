@@ -35,10 +35,11 @@ const HIDDEN_PRODUCT_PATTERNS = [
 const FLAT_DELTA = { large: 5000, juwara: 3000, oatside: 3000 } as const;
 const ADDON_PRICE = 6000;
 
-export function isExcludedKkOutlet(outlet: { code: string; name: string }): boolean {
+export function isExcludedKkOutlet(outlet: { code: string; name: string; category?: string | null }): boolean {
   const code = outlet.code.trim().toUpperCase();
   const name = outlet.name.toLowerCase();
   return (
+    outlet.category === "Kenangan Signature" ||
     code.startsWith("KS.") ||
     code.startsWith("KH.") ||
     code.startsWith("TESTPOS") ||
@@ -56,6 +57,7 @@ const RawOutletSchema = z.object({
   id: z.number().int(),
   code: z.string().min(1),
   name: z.string().min(1),
+  category: z.string().nullable().optional(),
   address: z.string().nullable().optional(),
   hours: z.object({ open: z.string().nullable().optional(), close: z.string().nullable().optional() }).nullable().optional(),
   coordinates: z.object({ lat: coord, lng: coord }).nullable().optional(),

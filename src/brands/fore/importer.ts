@@ -11,10 +11,11 @@ import { buildPerOutletPricing, cleanText, OptionGroupRegistry, toHHmm, type Imp
  *
  * Di data menu, minuman Iced dan Hot adalah produk terpisah ("Iced Aren Latte", "Hot Aren Latte"),
  * jadi data kustomisasi dicocokkan setelah awalan Iced/Hot dibuang. Pilihan es hanya untuk produk Iced.
- * Merchandise, aksesoris, dan kategori "Others" tidak dijual.
+ * Merchandise, aksesoris, kategori "Others", dan Coffee of The Day tidak dijual.
  */
 
-const EXCLUDED_CATEGORIES = new Set(["Merchandise", "Merchandise Accessories", "Others", "Fore x Citilink"]);
+// Coffee of The Day: sudah tidak dijual pemilik (20 Nov 2026).
+const EXCLUDED_CATEGORIES = new Set(["Merchandise", "Merchandise Accessories", "Others", "Fore x Citilink", "Coffee of The Day"]);
 const FOOD_CATEGORIES = new Set(["Fore Deli"]);
 
 const RawOutletSchema = z.object({

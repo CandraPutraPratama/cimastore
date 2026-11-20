@@ -37,8 +37,9 @@ const raw = {
         { categoryName: "Coffee", items: [
           { id: 10, name: "Iced Café Latte", price: 29000, normalPrice: 29000 },
           { id: 11, name: "Hot Café Latte", price: 29000, normalPrice: 29000 },
-          { id: 12, name: "Iced Aceh Gayo", price: 25000 },
+          { id: 13, name: "Iced Dirty Latte", price: 31000 },
         ] },
+        { categoryName: "Coffee of The Day", items: [{ id: 12, name: "Iced Aceh Gayo", price: 25000 }] },
         { categoryName: "Fore Deli", items: [{ id: 20, name: "Butter Croissant", price: 22000 }, { id: 21, name: "Cempedak Cake", price: 30000 }] },
         { categoryName: "Merchandise", items: [{ id: 30, name: "Tumbler", price: 150000 }] },
       ],
@@ -53,7 +54,8 @@ describe("importer Fore", () => {
 
   it("menjual minuman berkustomisasi dan makanan, melewatkan merchandise", () => {
     expect(snap.products.map((p) => p.name).sort()).toEqual(["Butter Croissant", "Cempedak Cake", "Hot Café Latte", "Iced Café Latte"]);
-    expect(report.warnings.join("\n")).toContain("Iced Aceh Gayo (1 outlet)");
+    expect(report.warnings.join("\n")).toContain("Iced Dirty Latte (1 outlet)");
+    expect(report.warnings.join("\n")).not.toContain("Aceh Gayo");
     expect(report.warnings.join("\n")).toContain("Outlet Kosong dilewati");
     expect(snap.outlets).toEqual([
       { code: "SNP", name: "Senopati", address: "Jl. Senopati 1", lat: -6.2, lng: 106.8, hours: { open: "07:00", close: "23:00" }, priceListCode: "fr-1" },

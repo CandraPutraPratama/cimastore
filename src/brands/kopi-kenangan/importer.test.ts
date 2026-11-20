@@ -143,6 +143,7 @@ describe("aturan lingkup KK", () => {
     expect(isExcludedKkOutlet({ code: "KH.JKT.X", name: "x" })).toBe(true);
     expect(isExcludedKkOutlet({ code: "JKT.X", name: "Chigo x Flip Tangcity" })).toBe(true);
     expect(isExcludedKkOutlet({ code: "KK.BDG.X", name: "Ruko Paskal" })).toBe(false);
+    expect(isExcludedKkOutlet({ code: "BREEZE", name: "The Breeze BSD", category: "Kenangan Signature" })).toBe(true);
     expect(isHiddenKkProduct("Seliter Kenangan - Latte")).toBe(true);
     expect(isHiddenKkProduct("ChiMate KrunChi Truffle Mushroom Sauce")).toBe(true);
     expect(isHiddenKkProduct("Kopi Kenangan Mantan")).toBe(false);
