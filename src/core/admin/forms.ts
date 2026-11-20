@@ -310,7 +310,7 @@ export interface BrandCreate {
 }
 
 /** Alamat yang tidak boleh dipakai brand karena bentrok dengan halaman lain. */
-const RESERVED_SLUGS = new Set(["baru", "admin", "api", "pesanan", "bayar", "checkout", "_next"]);
+const RESERVED_SLUGS = new Set(["baru", "admin", "api", "foto", "pesanan", "bayar", "checkout", "_next", "templat"]);
 
 export function parseBrandCreateForm(values: FormValues): Parsed<BrandCreate> {
   const errors: FieldErrors = {};

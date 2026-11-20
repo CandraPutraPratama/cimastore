@@ -3,6 +3,7 @@
 // Runtime types generated with workerd@1.20261118.1 2026-11-01 global_fetch_strictly_public,nodejs_compat
 interface __BaseEnv_CloudflareEnv {
 	ASSETS: Fetcher;
+	FOTO: R2Bucket;
 }
 declare namespace Cloudflare {
 	interface GlobalProps {

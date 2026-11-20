@@ -227,6 +227,14 @@ Akses halaman pesanan pakai token rahasia per pesanan (seperti v1), bukan cuma I
   - Tidak menyentuh grup opsi (ukuran, es, topping). Brand dengan beberapa price list ditolak.
 - **Database** (`supabase/migrations/20261121000006_admin_catalog.sql`): `admin_brand_create`, `admin_catalog_import`, `admin_catalog_context`, `admin_import_runs`, `admin_product_get`, `admin_product_save`. `admin_catalog_import` adalah port SQL dari `src/server/db/import-catalog.ts` (dipakai CLI di laptop). Keduanya diuji menghasilkan data dan statistik identik, termasuk impor ulang (hapus produk, ganti harga, nonaktifkan outlet). Opsi `p_options`: `deactivateMissing`, `syncOutlets`, `rewritePriceLists`, `replaceOptions`.
 
+### Foto produk (R2)
+
+- **Bucket**: `jasdor-v2-foto` (binding `FOTO` di `wrangler.jsonc`), privat. Foto tidak diakses langsung dari R2; website menayangkannya lewat rute `/foto/<kunci>` (`src/app/foto/[...key]/route.ts`) dengan `Cache-Control: public, max-age=31536000, immutable` dan ETag.
+- **Kunci** `<brand>/<id-produk>.<hash8>.<ext>` memuat hash isi file, jadi foto yang diganti otomatis mendapat alamat baru dan cache tidak pernah basi. Pola kunci divalidasi (`PHOTO_KEY_PATTERN`) sebelum menyentuh R2.
+- **Unggah**: `npm run foto:upload <brand> [periksa|lokal] [folder]` dari laptop (`scripts/foto-upload.ts`). Mencocokkan berkas dengan produk lewat kode (id produk atau kode di alamat foto sumber), lalu nama produk; yang tidak cocok atau ambigu dilaporkan, tidak ditebak. Foto yang tidak berubah dilewati, jadi aman diulang. Pengunggahan memakai `wrangler r2 object put`; `periksa` hanya menampilkan pencocokan; `lokal` memakai R2 simulasi untuk `npm run dev`.
+- **Tampil**: `catalog_menu` (migrasi 0007) mengirim `/foto/<image_key>` bila produk punya `image_key`, selain itu alamat foto sumber. Foto yang gagal dimuat diganti huruf awal produk. Impor ulang tidak menyentuh `image_key`.
+- Logo brand tidak termasuk foto produk (berkas yang tidak cocok produk dilaporkan saja).
+
 ### Tampilan customer (Tahap 2)
 
 - Data dibaca lewat 3 fungsi SQL, masing-masing satu perjalanan ke database: `catalog_home`, `catalog_outlets`, `catalog_menu` (`supabase/migrations/20261121000001_catalog_read.sql`). Hak eksekusi hanya untuk `service_role`; browser tidak pernah memanggil Supabase.
@@ -349,4 +357,4 @@ Catatan McD: tanpa data outlet (customer mengetik outlet sendiri). Menunya punya
 5. Bot Telegram v2 + pemasangan webhook menunggu website online di subdomain uji (Tahap 6). Penjadwal `expire-orders` (GitHub Actions) juga di Tahap 6.
 6. Checkout McD (outlet diketik customer) menyusul bersama data menu McD (Tahap 5).
 7. Data brand lama (KK, Fore, Chagee, Chatime) masih diimpor lewat `npm run db:import` di laptop karena punya opsi dan harga per outlet; impor CSV di admin untuk brand sederhana (Mixue, McD, brand baru).
-8. Foto produk dari CSV memakai alamat web apa adanya; mirror ke R2 menyusul bila perlu (Tahap 5/6).
+8. Foto produk dari CSV memakai alamat web apa adanya; untuk brand dengan foto sendiri pakai `npm run foto:upload`. Logo brand belum punya tempat unggah (kolom `logo_url` ada, belum dipakai tampilan).

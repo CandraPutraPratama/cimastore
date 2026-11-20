@@ -8,6 +8,10 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "r2_buckets": [
+    // Foto produk. Buat bucketnya dulu di dashboard Cloudflare (R2) dengan nama yang sama.
+    { "binding": "FOTO", "bucket_name": "jasdor-v2-foto" }
+  ],
   "observability": {
     "logs": { "enabled": true }
   }
