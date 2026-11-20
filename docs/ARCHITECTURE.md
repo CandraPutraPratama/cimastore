@@ -1,6 +1,6 @@
 # Jasdor v2 - Arsitektur & Rencana Bangun
 
-Status: Tahap 0 (fondasi) selesai. Berikutnya Tahap 1 (inti: database, mesin harga + promo, importer).
+Status: Tahap 0 selesai. Tahap 1 sebagian: mesin harga + promo + pemecahan transaksi, skema database, importer Chagee & Chatime selesai. Importer KK & Fore menunggu keputusan data kustomisasi KK (bagian 9).
 Tanggal: 20 November 2026
 
 ---
@@ -93,7 +93,9 @@ Tiap brand punya **daftar promo** (tabel `promos`) dan **aturan fee** (`brands.f
 3. Rencana pemecahan ini disimpan di pesanan dan **ditampilkan di panel admin** sebagai panduan checkout: "Transaksi 1: item A + B, pakai voucher 50%. Transaksi 2: item C, pakai voucher Rp30.000."
 4. Di keranjang customer cukup tampil total potongan, plus petunjuk seperti "Tambah Rp8.000 lagi untuk dapat potongan Rp30.000".
 
-Pencarian pemecahan terbaik dilakukan secara menyeluruh untuk keranjang kecil (sampai sekitar 12 porsi). Di atas itu dipakai cara cepat (greedy). Batas maksimal porsi per pesanan bisa diatur per brand.
+Pencarian pemecahan terbaik dilakukan secara menyeluruh selama masih di bawah 4.000 evaluasi (biasanya keranjang sampai 7-10 porsi berbeda; porsi yang identik jauh lebih ringan). Di atas itu dipakai cara cepat (greedy berbasis efisiensi potongan). Hasil uji: waktu hitung maksimal sekitar 5 ms untuk 20 porsi berbeda, dan potongan cara cepat minimal 97% dari hasil terbaik (umumnya 100%). Batas maksimal porsi per pesanan bisa diatur per brand.
+
+Implementasi: `src/core/pricing/engine.ts` (`priceOrder`), aturan di `src/core/pricing/rules.ts`, test berisi contoh nyata pemilik di `engine.test.ts`.
 
 Promo awal:
 
@@ -140,14 +142,23 @@ Sumber data brand            Importer               Format standar           Dat
 
 | Brand | Outlet | Menu & harga | Kustomisasi (ukuran, es, gula, add-on) | Catatan |
 | --- | --- | --- | --- | --- |
-| Kopi Kenangan | 1.382 outlet | per outlet (1.384 file), update 16-18 Nov | **tidak ada**, diambil dari v1 | outlet & menu dari data baru, dibandingkan dengan data v1 saat import |
-| Fore | 423 outlet | per outlet (423 file) | **tidak ada**, diambil dari v1 (`fore-customization-data.ts`) | |
-| Chagee | 70 outlet | master 45 produk + harga & stok per outlet | ada | foto masih di server pihak ketiga (`db.akzara.id`) |
-| Chatime | 426 outlet | master 170 produk | ada | sinkron terakhir 16 Sep 2026, harga mungkin sudah berubah |
+| Kopi Kenangan | 1.382 outlet | per outlet (1.384 file), update 16-18 Nov | **tidak ada**. Data v1 (`kopi-kenangan-static.json`, snapshot 1 outlet) hanya mencakup 48 dari 139 minuman; 17 dari 55 minuman terpopuler tidak ada (seri Taro, semua Frappe, Thai Tea, Dua Shot OG Aren) | menunggu keputusan |
+| Fore | 423 outlet | per outlet (423 file) | dari v1 (`fore-customization-data.ts`): cocok 60 dari 77 produk non-merchandise setelah awalan Iced/Hot dibuang; belum ada: 6 Coffee of The Day, sisanya produk "Others" (kartu ucapan, tas) | siap dibuat |
+| Chagee | 70 outlet | master 45 produk + harga & stok per outlet | ada | **importer selesai** (2 price list). Foto tidak dipakai karena di server pihak ketiga (`db.akzara.id`) |
+| Chatime | 426 outlet | master 170 produk | ada | **importer selesai**. Sinkron terakhir 16 Sep 2026, harga mungkin sudah berubah |
 | Mixue | - | - | - | menyusul |
 | McD | tidak dipakai | - | - | menyusul, pakai template |
 
 Data mentah tidak di-commit ke repo (dimasukkan `.gitignore`); yang masuk database adalah hasil importer.
+
+Menjalankan importer (hasil di `.snapshots/<brand>.json`, divalidasi `CatalogSnapshotSchema`):
+
+```bash
+npm run snapshot -- chagee ./Chagee
+npm run snapshot -- chatime ./Chatime
+```
+
+Chagee dan Chatime memakai format data yang sama, jadi berbagi satu konverter (`src/brands/store-menu-format.ts`): ukuran (Small/Regular/Large) menjadi grup opsi "Ukuran" dengan harga dasar = ukuran termurah; topping khusus ukuran memakai `requiresAnyOf`; price list per outlet digabung bila identik.
 
 **Checklist nambah brand baru:**
 1. Admin → Brand → Tambah: isi nama, logo, warna, prefix ID, aturan harga, jam buka.
@@ -261,6 +272,8 @@ Catatan McD: tanpa data outlet (customer mengetik outlet sendiri). Menunya punya
 
 ### Masih terbuka
 
-1. Mixue: aturan minimal belanja Rp40.000 terhadap Boba Sundae (menunggu data Mixue).
-2. Foto Chagee: cari dari sumber resmi Chagee, bukan dari server pihak ketiga.
-3. Fee Chagee, Chatime, Mixue (diisi 0 dulu).
+1. **Kustomisasi KK** untuk minuman yang tidak ada di data v1: pemilik menyediakan datanya, atau dipakai template standar per kategori (ditandai untuk dicek), atau produk itu disembunyikan dulu.
+2. **KK + pemecahan transaksi**: voucher Rp30.000 (min Rp50.000) pada transaksi 2 cup @Rp25.000 memberi potongan 60%, lebih besar dari 50%. Mesin harga memberikan potongan ini ke customer. Pemilik perlu memutuskan apakah ini diinginkan.
+3. Mixue: aturan minimal belanja Rp40.000 terhadap Boba Sundae (menunggu data Mixue). Sementara mesin harga menghitung minimal belanja setelah potongan promo item.
+4. Foto Chagee: cari dari sumber resmi Chagee, bukan dari server pihak ketiga.
+5. Fee Chagee, Chatime, Mixue (diisi 0 dulu).
