@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jasdor v2
 
-## Getting Started
+Website jasa order multi-brand: customer memilih brand, outlet, dan menu, membayar lewat QRIS, lalu pesanan diteruskan ke admin lewat WhatsApp. Customer mengambil pesanan sendiri di outlet.
 
-First, run the development server:
+Brand: Kopi Kenangan, Fore, Chagee, Chatime, Mixue, McD.
+
+Arsitektur, model data, aturan promo, dan tahapan bangun ada di [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Menjalankan di laptop
+
+Butuh Node.js 22 atau lebih baru.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # isi nilainya saat tahap yang membutuhkannya
+npm run dev                  # buka http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Perintah
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Perintah | Fungsi |
+| --- | --- |
+| `npm run dev` | Server development |
+| `npm run check` | Lint + typecheck + test (wajib lolos sebelum commit) |
+| `npm test` | Test saja (`npm run test:watch` untuk mode pantau) |
+| `npm run build:worker` | Build untuk Cloudflare Workers |
+| `npm run preview` | Build lalu jalankan versi Workers secara lokal |
+| `npm run deploy` | Build lalu deploy ke Cloudflare |
+| `npm run cf-typegen` | Perbarui tipe binding Cloudflare setelah mengubah `wrangler.jsonc` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Struktur folder
 
-## Learn More
+```text
+src/app/          halaman dan API route (tipis, memanggil modul di bawah)
+src/core/         logika bisnis murni: harga, promo, transaksi, jam buka, pesan WA
+src/brands/       importer data per brand
+src/server/       akses Supabase, R2, Telegram
+supabase/         migrasi database
+docs/             arsitektur dan runbook
+```
 
-To learn more about Next.js, take a look at the following resources:
+Folder data mentah per brand (`Chagee/`, `Chatime/`, `Fore/`, `Kopi Kenangan/`) tidak masuk repo.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Catatan
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Jasdor adalah layanan independen dan tidak berafiliasi dengan brand mana pun. Nama dan logo brand dimiliki pemiliknya masing-masing.

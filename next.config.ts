@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // cacheComponents sengaja tidak diaktifkan: belum didukung penuh oleh
+  // @opennextjs/cloudflare (lihat opennextjs-cloudflare PR #1318).
+  poweredByHeader: false,
   turbopack: {
     rules: {
       "*.css": {
@@ -15,3 +15,7 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+// Mengaktifkan binding Cloudflare (env, R2, KV) saat `next dev`.
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+initOpenNextCloudflareForDev();
