@@ -12,9 +12,12 @@ Butuh Node.js 22 atau lebih baru.
 
 ```bash
 npm install
-cp .env.example .env.local   # isi nilainya saat tahap yang membutuhkannya
+cp .env.example .env.local   # isi SUPABASE_URL, SUPABASE_SECRET_KEY, DATABASE_URL
+npm run db:migrate           # setiap ada migrasi baru
 npm run dev                  # buka http://localhost:3000
 ```
+
+Selama brand belum diaktifkan, isi `CATALOG_PREVIEW=true` di `.env.local` agar brand tampil saat pratinjau.
 
 ## Perintah
 

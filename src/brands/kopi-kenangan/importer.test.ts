@@ -41,6 +41,14 @@ const customization = {
       addons,
       combinations: [],
     },
+    // Data sumber menempelkan add-on minuman ke roti: harus diabaikan.
+    "6": {
+      productId: 6,
+      name: "Chocolate Croissant",
+      options: { temperatures: [], sizes: [], sugarLevels: [], coffeeBeans: [], dairyChoices: [], iceLevels: [] },
+      addons,
+      combinations: [],
+    },
     // ID berbeda dengan menu (99 vs 3), dicocokkan lewat nama.
     "99": {
       productId: 99,
@@ -132,6 +140,7 @@ describe("importer Kopi Kenangan", () => {
     const snap = CatalogSnapshotSchema.parse(snapshot);
     expect(resolveProductFromSnapshot(snap, "BANDARA", "1")!.basePrice).toBe(32000);
     expect(resolveProductFromSnapshot(snap, "BANDARA", "6")!.status).toBe("hidden");
+    expect(resolveProductFromSnapshot(snap, "LIPPO-PURI", "6")!.optionGroups).toEqual([]);
     const bandara = snap.outlets.find((o) => o.code === "BANDARA")!;
     expect(bandara.lat).toBeUndefined();
     expect(snap.outlets[0].hours).toEqual({ open: "10:00", close: "21:45" });

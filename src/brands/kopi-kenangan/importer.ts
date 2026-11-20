@@ -16,6 +16,7 @@ import { buildPerOutletPricing, cleanText, OptionGroupRegistry, toHHmm, type Imp
  * - Tambahan harga flat: Large +5.000, Juwara Beans +3.000, Oatside +3.000.
  *   Syrup/Sauce +6.000, Topping +6.000. Whipped Cream gratis, pilih 1, khusus Frappe.
  * - Harga coret memakai harga asli KK (dari kombinasi SKU di file kustomisasi).
+ * - Makanan (Food, Kenangan Toast) dijual tanpa pilihan apa pun.
  */
 
 export const KK_CATEGORY_ORDER = ["Baru!", "Coffee", "Non Coffee", "Kenangan Frappe", "Kenangan Toast", "Food"];
@@ -365,7 +366,8 @@ export function buildKopiKenanganSnapshot(
       name,
       ...(cleanText(info.item.description) ? { description: cleanText(info.item.description) } : {}),
       ...(image ? { imageUrl: image } : {}),
-      optionGroupIds: custom ? buildOptionGroups(registry, custom, isFrappe) : [],
+      // Makanan tidak punya varian/add-on (data sumber kadang menempelkan add-on minuman ke roti).
+      optionGroupIds: custom && !isFood ? buildOptionGroups(registry, custom, isFrappe) : [],
     });
     included.add(id);
   }

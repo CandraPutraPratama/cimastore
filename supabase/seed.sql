@@ -47,3 +47,16 @@ values (
   }'::jsonb
 )
 on conflict (id) do nothing;
+
+-- Warna aksen per brand (perkiraan, bisa diubah dari admin). Hanya diisi bila masih kosong.
+update public.brands b set theme = t.theme
+from (
+  values
+    ('kopi-kenangan', '{"accent":"#C8102E"}'::jsonb),
+    ('fore',          '{"accent":"#0B6B3A"}'::jsonb),
+    ('chagee',        '{"accent":"#7A5230"}'::jsonb),
+    ('chatime',       '{"accent":"#5B2C83"}'::jsonb),
+    ('mixue',         '{"accent":"#E60012"}'::jsonb),
+    ('mcd',           '{"accent":"#DA291C"}'::jsonb)
+) as t (slug, theme)
+where b.slug = t.slug and b.theme = '{}'::jsonb;

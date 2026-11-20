@@ -1,6 +1,6 @@
 # Jasdor v2 - Arsitektur & Rencana Bangun
 
-Status: Tahap 0 dan Tahap 1 selesai (mesin harga + promo + pemecahan transaksi, skema database, importer 4 brand, skrip migrasi & import ke database). Berikutnya Tahap 2 (katalog customer).
+Status: Tahap 0, 1, dan 2 selesai. Tahap 2: beranda brand + status jam layanan, pilih outlet (cari, toleran salah ketik, urut lokasi), menu per outlet, lembar pilihan varian, keranjang struk dengan perhitungan promo. Berikutnya Tahap 3 (checkout, QRIS, WhatsApp, Telegram).
 Tanggal: 20 November 2026
 
 ---
@@ -197,6 +197,15 @@ Chagee dan Chatime memakai format data yang sama, jadi berbagi satu konverter (`
 Akses halaman pesanan pakai token rahasia per pesanan (seperti v1), bukan cuma ID.
 
 ---
+
+### Tampilan customer (Tahap 2)
+
+- Data dibaca lewat 3 fungsi SQL, masing-masing satu perjalanan ke database: `catalog_home`, `catalog_outlets`, `catalog_menu` (`supabase/migrations/20261121000001_catalog_read.sql`). Hak eksekusi hanya untuk `service_role`; browser tidak pernah memanggil Supabase.
+- Server memanggilnya lewat `src/server/db/rpc.ts`: API Supabase bila `SUPABASE_URL` + `SUPABASE_SECRET_KEY` ada; koneksi Postgres langsung (`DATABASE_URL`) hanya untuk development tanpa API.
+- Halaman: `/` (brand), `/[brand]` (pilih outlet), `/[brand]/[outlet]` (menu). Keranjang disimpan di browser per brand+outlet dan selalu dihitung ulang dari menu terbaru dengan `priceLine` + `priceOrder` (logika yang sama dengan server).
+- Desain: satu kolom ala aplikasi HP (maks 480px), font Plus Jakarta Sans (dibundel, tanpa Google Fonts), tinta biru tua, aksen marigold, hijau khusus angka hemat. Satu elemen menonjol: angka "Kamu hemat" di keranjang berbentuk struk.
+- Uji lokal: 20.327 harga & opsi dari `catalog_menu` dicocokkan dengan mesin harga, 0 beda. `catalog_menu` ±7 ms, `catalog_outlets` ±9 ms di Postgres lokal. Menu terbesar (Chatime) ±36 KB setelah kompresi.
+- Makanan KK dijual tanpa pilihan (data sumber menempelkan add-on minuman ke 6 roti).
 
 ## 6. Skema database (ringkas)
 
