@@ -1,9 +1,11 @@
 /**
  * Membaca data mentah brand, membuat snapshot, lalu memasukkannya ke database.
  *
- *   npm run db:import -- <brand> [folder-data-mentah]
- *   npm run db:import -- kopi-kenangan
- *   npm run db:import -- --all
+ *   npm run db:import:all                 (semua brand)
+ *   npm run db:import -- <brand> [folder]  atau di PowerShell: npm run db:import kopi-kenangan
+ *
+ * Catatan PowerShell: tanda "--" ditelan PowerShell sehingga "--all" ditangkap npm
+ * (menjadi npm_config_all). Karena itu "all", "--all", dan npm_config_all diterima semua.
  *
  * Tiap brand diimport dalam satu transaksi: kalau gagal, data brand itu tidak berubah sama sekali.
  */
@@ -12,15 +14,16 @@ import { connect } from "./lib/db";
 import { buildSnapshotFromDir, DEFAULT_RAW_DIRS, printReport } from "./lib/snapshot";
 
 async function main() {
-  const args = process.argv.slice(2);
+  const args = process.argv.slice(2).filter((a) => a !== "--");
+  const wantsAll = args[0] === "--all" || args[0] === "all" || (args.length === 0 && process.env.npm_config_all === "true");
   const targets: Array<[string, string]> =
-    args[0] === "--all"
+    wantsAll
       ? Object.entries(DEFAULT_RAW_DIRS)
       : args[0]
         ? [[args[0], args[1] ?? DEFAULT_RAW_DIRS[args[0]]]]
         : [];
   if (targets.length === 0) {
-    console.error(`Pemakaian: npm run db:import -- <brand> [folder-data]   atau   npm run db:import -- --all
+    console.error(`Pemakaian: npm run db:import:all   atau   npm run db:import <brand> [folder-data]
 Brand: ${Object.keys(DEFAULT_RAW_DIRS).join(", ")}`);
     process.exit(1);
   }

@@ -168,8 +168,8 @@ Fore (`src/brands/fore/importer.ts`): kustomisasi dicocokkan setelah awalan Iced
 
 ```bash
 npm run db:migrate              # tabel + data awal (brand, promo, pengaturan); aman diulang
-npm run db:import -- --all      # 4 brand dari folder data mentah default
-npm run db:import -- fore       # satu brand saja
+npm run db:import:all           # 4 brand dari folder data mentah default
+npm run db:import fore          # satu brand saja
 ```
 
 Skrip memakai `DATABASE_URL` (Session pooler Supabase) di `.env.local`, dijalankan dari laptop pemilik atau GitHub Actions (jaringan sesi agent tidak bisa menjangkau supabase.co). Import satu brand berjalan dalam satu transaksi (`src/server/db/import-catalog.ts`): data yang hilang dari sumber dinonaktifkan, bukan dihapus; price list berkode hash isi sehingga import ulang tanpa perubahan harga tidak menulis ulang harga. Uji lokal (Postgres 16, data asli): import awal 4 brand sekitar 4 detik (2.283 outlet, 435 produk, 87.042 baris harga, 75.541 status produk per outlet); import ulang tanpa perubahan menulis 0 baris harga.

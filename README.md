@@ -29,7 +29,7 @@ npm run dev                  # buka http://localhost:3000
 | `npm run cf-typegen` | Perbarui tipe binding Cloudflare setelah mengubah `wrangler.jsonc` |
 | `npm run snapshot -- <brand>` | Cek hasil importer dari data mentah (tanpa database), hasil di `.snapshots/` |
 | `npm run db:migrate` | Buat/perbarui tabel database + data awal (butuh `DATABASE_URL`) |
-| `npm run db:import -- <brand>` / `-- --all` | Masukkan data brand ke database, satu transaksi per brand |
+| `npm run db:import:all` / `npm run db:import <brand>` | Masukkan data brand ke database, satu transaksi per brand |
 
 ## Struktur folder
 
