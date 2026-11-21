@@ -66,7 +66,7 @@ export const KK_NEW_PRODUCTS: NewProduct[] = [
   { name: "Apple Tea", category: "Non Coffee", optionsLike: "Lemon Black Tea", tierPrices: tiers(18000, 18000, 18000) },
   { name: "Peach Tea", category: "Non Coffee", optionsLike: "Lemon Black Tea", tierPrices: tiers(18000, 18000, 18000) },
   { name: "Thai Tea", category: "Non Coffee", optionsLike: "OG Thai Tea", tierPrices: tiers(22000, 22000, 34000) },
-  { name: "Honey Latte", category: "Coffee", optionsLike: "Latte", tierPrices: tiers(22000, 24000, 32000) },
+  { name: "Honey Latte", category: "Coffee", optionsLike: "Latte", tierPrices: tiers(22000, 24000, 32000), outletPrices: { "JKT.GANDCITY": 44000 } },
   { name: "Honey Macchiato Cream Americano", category: "Coffee", optionsLike: "Banana Americano", tierPrices: tiers(19000, 21000, 29000) },
   { name: "Orange Americano", category: "Coffee", optionsLike: "Banana Americano", tierPrices: tiers(17000, 19000, 27000) },
   { name: "Oatside Boba Gula Aren", category: "Non Coffee", optionsLike: "Susu Boba Gula Aren", tierPrices: tiers(27000, 27000, 39000) },
@@ -79,7 +79,7 @@ export const KK_NEW_PRODUCTS: NewProduct[] = [
   { name: "Freezy Latte", category: "Kenangan Frappe", optionsLike: "Kopi Kenangan Mantan Frappe", tierPrices: tiers(25000, 30000, 35000) },
   { name: "Freezy Matcha Latte", category: "Kenangan Frappe", optionsLike: "Matcha Kenangan Frappe", tierPrices: tiers(25000, 30000, 35000) },
   { name: "Freezy Mocha Latte", category: "Kenangan Frappe", optionsLike: "Kopi Kenangan Mantan Frappe", tierPrices: tiers(30000, 35000, 41000) },
-  { name: "Freezy Nobo Honey Mango", category: "Kenangan Frappe", optionsLike: "Dutch Choco Kenangan Frappe", tierPrices: tiers(26000, 28000, 36000) },
+  { name: "Freezy Nobo Honey Mango", category: "Kenangan Frappe", optionsLike: "Dutch Choco Kenangan Frappe", tierPrices: tiers(26000, 28000, 36000), outletPrices: { "JKT.GANDCITY": 45000 } },
   // Hanya sellable di sebagian outlet sample: ditambah ke outlet itu saja.
   { name: "Archipelago Blend", category: "Coffee", outletPrices: { [MSC]: 95000, [TNG]: 95000 } },
   { name: "Archipelago Reserve", category: "Coffee", outletPrices: { [LIPPO]: 110000, [MSC]: 110000, [TNG]: 110000 } },
@@ -92,9 +92,13 @@ export const KK_NEW_PRODUCTS: NewProduct[] = [
   { name: "Vanilla Bombolone", category: "Food", outletPrices: { [TNG]: 22000 } },
   { name: "Matcha Brioche au Craquelin", category: "Food", outletPrices: { [TNG]: 25000 } },
   { name: "Pain au Chocolat", category: "Food", outletPrices: { [TNG]: 35000 } },
+  // Tidak ada di menu yang diimpor (Rice: kategori Sides, id resmi 403; dua lainnya tidak ada di data mentah).
+  { name: "Choco Chunk Crookie", category: "Food", outletPrices: { "MDN.KUALANAMU": 24000 } },
+  { name: "Rice", category: "Food", id: 403, outletPrices: { "MDN.KUALANAMU": 8000 } },
+  { name: "Sunny Peach Americano", category: "Coffee", optionsLike: "Banana Americano", outletPrices: { "DPR.BUNGURHRAI": 27000 } },
   // Produk sendiri, bukan "Friend Chip Cookie" (id 1261, Rp19.000). Id resmi KK 8122 (product_info TNG, 21 Nov);
   // di data mentah id ini hanya dipakai produk bernama sama ("Friend-chip Cookie", kategori Boulangerie).
-  { id: 8122, name: "Friend-chip Cookie", category: "Food", outletPrices: { [TNG]: 25000 } },
+  { id: 8122, name: "Friend-chip Cookie", category: "Food", outletPrices: { [TNG]: 25000, "JKT.GANDCITY": 24000 } },
 ];
 
 /**
@@ -105,6 +109,23 @@ export const KK_OUTLET_ADDITIONS: Record<string, Record<string, number>> = {
   MSC: { "Choco Chip Cookies": 14000, "Join the Dark Side Cookie": 29000, "Spanish Latte": 19000 },
   "AEON.BSD": { "Butter Croissant": 15000 },
   [TNG]: { "Choco Chip Cookies": 20000, "Raspberry Hibiscus": 30000, "Roti Keju Manis": 17000, "Roti Susu Manis": 15000 },
+  // Ronde 2 (audit pasca-import 21 Nov): outlet di luar 5 outlet sample. Entri bisa menambah produk
+  // yang hilang atau menimpa harga produk yang sudah ada di outlet itu.
+  // GANDCITY: outlet premium, harga resmi di atas tier bandara. Honey Latte, Freezy Nobo Honey Mango dan
+  // Friend-chip Cookie (produk baru) diatur lewat outletPrices.
+  "JKT.GANDCITY": { Latte: 35000, Cappuccino: 35000, "Butterscotch Sea Salt Latte": 44000, "Caramel Macchiato": 45000, Babyccino: 28000 },
+  SMS: { "Butter Croissant": 15000, "Sugar Donut": 10000, "Join the Dark Side Cookie": 29000, Latte: 22000, Cappuccino: 22000 },
+  "MDN.KUALANAMU": {
+    // "1 Pcs KrunChi" (resmi Rp24.000) sengaja tidak ditambah: KrunChi disembunyikan oleh aturan pemilik (importer.ts).
+    "Friend Chip Cookie": 19000, "Join the Dark Side Cookie": 29000, "Milk Tea Boba": 23000,
+    Latte: 22000, Cappuccino: 22000, "Chocolate Croissant": 19000, "Butter Croissant": 15000, "Roti Coklat Klasik": 9000,
+    "Choco Chip Cookies": 14000, "Sugar Donut": 10000, "Chocolate Donut": 13000, "Roti Srikaya": 15000,
+  },
+  // Master Chef Peach Aren Latte dan Sparks Americano memang tidak dijual di DPR.
+  "DPR.BUNGURHRAI": {
+    "Milk Tea Boba": 35000, "Oatside Matcha Latte": 35000, "Roti Keju Manis": 17000,
+    "Susu Boba Gula Aren": 36000, "Oatside Kopi Kenangan Mantan": 31000, "Oatside Latte": 35000, "Friend Chip Cookie": 25000,
+  },
 };
 
 /**
@@ -188,7 +209,8 @@ export function applyKkMenuPatch(menus: Map<string, PatchMenu>): PatchResult {
     const menu = menus.get(code);
     if (!menu) continue;
     for (const [name, price] of Object.entries(additions)) {
-      const entry = known.get(normName(name));
+      // Produk yang sudah ada di outlet ini ditimpa pada id-nya sendiri; kalau belum ada, ambil contoh dari outlet lain.
+      const entry = [...menu.values()].find((e) => normName(e.item.name) === normName(name)) ?? known.get(normName(name));
       if (!entry) {
         warnings.push(`Koreksi menu: produk "${name}" tidak ditemukan di data, dilewati untuk ${code}.`);
         continue;

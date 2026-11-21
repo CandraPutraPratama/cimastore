@@ -58,6 +58,27 @@ describe("koreksi menu Kopi Kenangan", () => {
     expect(menus.get("JKT.GANDCITY")!.get(1)!.item.price).not.toBe(20000);
   });
 
+  it("override per outlet (C) menimpa harga produk yang sudah ada, outletPrices untuk produk baru", () => {
+    const menus = new Map<string, PatchMenu>([
+      ["JKT.GANDCITY", new Map([entry(5, "Latte", 24000, "Coffee")])],
+      ["SMS", new Map([entry(6, "Join the Dark Side Cookie", 21000)])],
+      ["DPR.BUNGURHRAI", new Map([entry(7, "Friend Chip Cookie", 22000)])],
+      ["MDN.KUALANAMU", new Map([entry(5, "Latte", 32000, "Coffee")])],
+    ]);
+    applyKkMenuPatch(menus);
+    expect(menus.get("JKT.GANDCITY")!.get(5)!.item.price).toBe(35000);
+    expect(menus.get("SMS")!.get(6)!.item.price).toBe(29000);
+    expect(menus.get("DPR.BUNGURHRAI")!.get(7)!.item.price).toBe(25000);
+    expect(menus.get("MDN.KUALANAMU")!.get(5)!.item.price).toBe(22000);
+    const price = (code: string, name: string) => [...menus.get(code)!.values()].find((e) => e.item.name === name)?.item.price;
+    expect(price("JKT.GANDCITY", "Honey Latte")).toBe(44000);
+    expect(price("JKT.GANDCITY", "Freezy Nobo Honey Mango")).toBe(45000);
+    expect(price("JKT.GANDCITY", "Friend-chip Cookie")).toBe(24000);
+    expect(price("MDN.KUALANAMU", "Rice")).toBe(8000);
+    expect(price("DPR.BUNGURHRAI", "Sunny Peach Americano")).toBe(27000);
+    expect(price("DPR.BUNGURHRAI", "Master Chef Peach Aren Latte")).toBeUndefined();
+  });
+
   it("harga bandara dan Kopi Kenangan Mantan", () => {
     const menus = new Map<string, PatchMenu>([
       ["TNG.SOETTA2", new Map([entry(1, "Matcha Latte", 25000, "Non Coffee"), entry(2, "Friend Chip Cookie", 17000)])],
