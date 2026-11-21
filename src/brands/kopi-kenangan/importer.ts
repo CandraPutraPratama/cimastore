@@ -3,6 +3,7 @@ import { dedupePriceLists } from "../../core/catalog/dedupe";
 import type { CatalogSnapshotInput } from "../../core/catalog/snapshot";
 import type { BrandImporter } from "../registry";
 import { buildPerOutletPricing, cleanText, OptionGroupRegistry, toHHmm, type ImportReport } from "../shared";
+import { applyKkMenuPatch } from "./menu-patch";
 
 /**
  * Kopi Kenangan.
@@ -316,6 +317,17 @@ export function buildKopiKenanganSnapshot(
     menus.set(outlet.code, items);
   }
 
+  // 1b. Koreksi ke harga resmi dan tambah item yang hilang (menu-patch.ts).
+  const patch = applyKkMenuPatch(menus, new Map(served.map((o) => [o.code, o.category])));
+  warnings.push(...patch.warnings);
+  const plainNewProducts = new Set<number>();
+  for (const p of patch.newProducts) {
+    const template = p.optionsLike ? customByName.get(norm(p.optionsLike)) : undefined;
+    if (template) customById.set(p.id, template);
+    else if (p.optionsLike) warnings.push(`Produk baru "${p.name}" dilewati: kustomisasi "${p.optionsLike}" tidak ditemukan.`);
+    else plainNewProducts.add(p.id);
+  }
+
   // 2. Gabungkan produk dari semua outlet.
   const productInfo = new Map<number, { item: Item; categories: Set<string>; outlets: number }>();
   for (const items of menus.values()) {
@@ -356,6 +368,7 @@ export function buildKopiKenanganSnapshot(
     // Makanan: kategori Food/Toast, atau produk tanpa satu pun pilihan (roti baru di kategori "Baru!").
     const isFood =
       [...info.categories].some((c) => FOOD_CATEGORIES.has(c)) ||
+      plainNewProducts.has(id) ||
       (custom !== undefined && Object.values(custom.options).every((v) => v.length === 0));
     if (!custom && !isFood) {
       missingCustomization.push({ name, outlets: info.outlets });

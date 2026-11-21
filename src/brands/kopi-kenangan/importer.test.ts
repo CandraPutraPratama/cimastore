@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { CatalogSnapshotSchema } from "../../core/catalog/snapshot";
 import { defaultOptionIds, resolveProductFromSnapshot } from "../../core/catalog/resolve";
 import { priceLine } from "../../core/catalog/selection";
+import { KK_NEW_PRODUCT_ID_BASE } from "./menu-patch";
 import { buildKopiKenanganSnapshot, isExcludedKkOutlet, isHiddenKkProduct } from "./importer";
 
 const addons = [
@@ -101,8 +102,10 @@ describe("importer Kopi Kenangan", () => {
     const { snapshot, report } = build();
     const snap = CatalogSnapshotSchema.parse(snapshot);
     expect(snap.outlets.map((o) => o.code)).toEqual(["LIPPO-PURI", "BANDARA"]);
-    expect(snap.products.map((p) => p.name).sort()).toEqual(["Americano", "Chocolate Croissant", "Kopi Kenangan Mantan", "Mantan Frappe", "Triple Cheese Bagel"]);
-    expect(report.counts).toMatchObject({ hiddenByRule: 1, missingCustomization: 1 });
+    expect(snap.products.filter((p) => Number(p.id) < KK_NEW_PRODUCT_ID_BASE).map((p) => p.name).sort()).toEqual(["Americano", "Chocolate Croissant", "Kopi Kenangan Mantan", "Mantan Frappe", "Triple Cheese Bagel"]);
+    // Minuman tambahan dari menu-patch ikut terhitung karena fixture tidak punya kustomisasi tiruannya.
+    expect(report.counts).toMatchObject({ hiddenByRule: 1 });
+    expect(report.counts.missingCustomization).toBeGreaterThanOrEqual(1);
     expect(report.warnings.join("\n")).toContain("Mocha Latte (1 outlet)");
     expect(report.warnings.join("\n")).toContain("1 outlet Kenangan Signature/Heritage/Chigo");
     expect(report.warnings.join("\n")).toContain("1 produk dicocokkan ke data kustomisasi lewat nama");
