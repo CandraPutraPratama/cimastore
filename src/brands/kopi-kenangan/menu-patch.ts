@@ -110,19 +110,22 @@ export const KK_OUTLET_ADDITIONS: Record<string, Record<string, number>> = {
 /**
  * Bagian D: harga resmi ABSOLUT per tier untuk item yang harga Bintang-nya meleset.
  * Harga outlet di-set ke nilai tier-nya apa pun harga awalnya. Tier tanpa nilai = tidak diubah.
+ * Nilai bandara dari TNG.SOETTA2 dan DPR.BUNGURHRAI (identik). Friend Chip Cookie tidak dijual di bandara.
  */
 export const KK_PRICE_FIXES: Record<string, Partial<Record<KkTier, number>>> = {
+  // Harga penentu tier; terverifikasi di ratusan outlet.
+  "Kopi Kenangan Mantan": { normal: 19000, mall: 22000, bandara: 32000 },
   Americano: { normal: 15000, mall: 18000, bandara: 30000 },
-  "Butterscotch Aren Latte": { normal: 19000, mall: 21000 },
+  "Butterscotch Aren Latte": { normal: 19000, mall: 21000, bandara: 29000 },
   "Friend Chip Cookie": { normal: 19000, mall: 19000 },
-  "Kenangan Milk Tea": { normal: 19000, mall: 19000 },
-  "Lemon Black Tea": { normal: 15000, mall: 17000 },
-  "Matcha Latte": { normal: 22000, mall: 24000 },
-  "Milo Dinosaurus": { normal: 22000, mall: 22000 },
-  "Raspberry Hibiscus": { normal: 18000, mall: 20000 },
-  "Roti Keju Manis": { normal: 12000, mall: 12000 },
-  "Roti Susu Manis": { normal: 9000, mall: 9000 },
-  "Avocado Coffee": { normal: 28000 },
+  "Kenangan Milk Tea": { normal: 19000, mall: 19000, bandara: 30000 },
+  "Lemon Black Tea": { normal: 15000, mall: 17000, bandara: 31000 },
+  "Matcha Latte": { normal: 22000, mall: 24000, bandara: 32000 },
+  "Milo Dinosaurus": { normal: 22000, mall: 22000, bandara: 32000 },
+  "Raspberry Hibiscus": { normal: 18000, mall: 20000, bandara: 30000 },
+  "Roti Keju Manis": { normal: 12000, mall: 12000, bandara: 17000 },
+  "Roti Susu Manis": { normal: 9000, mall: 9000, bandara: 15000 },
+  "Avocado Coffee": { normal: 28000, bandara: 38000 },
   "Butter Croissant": { bandara: 27000 },
 };
 

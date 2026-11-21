@@ -58,6 +58,25 @@ describe("koreksi menu Kopi Kenangan", () => {
     expect(menus.get("JKT.GANDCITY")!.get(1)!.item.price).not.toBe(20000);
   });
 
+  it("harga bandara dan Kopi Kenangan Mantan", () => {
+    const menus = new Map<string, PatchMenu>([
+      ["TNG.SOETTA2", new Map([entry(1, "Matcha Latte", 25000, "Non Coffee"), entry(2, "Friend Chip Cookie", 17000)])],
+      ["JKT.GANDCITY", new Map([entry(3, "Roti Keju Manis", 13000)])],
+      ["SMS", new Map([entry(4, "Kopi Kenangan Mantan", 22000, "Coffee")])],
+      ["MDN.KUALANAMU", new Map([entry(4, "Kopi Kenangan Mantan", 32000, "Coffee")])],
+      ["LIPPO-PURI", new Map([entry(4, "Kopi Kenangan Mantan", 22000, "Coffee")])],
+      ["TNG.T2", new Map([entry(4, "Kopi Kenangan Mantan", 19000, "Coffee")])],
+    ]);
+    applyKkMenuPatch(menus);
+    expect(menus.get("TNG.SOETTA2")!.get(1)!.item.price).toBe(32000);
+    expect(menus.get("TNG.SOETTA2")!.get(2)!.item.price).toBe(17000);
+    expect(menus.get("JKT.GANDCITY")!.get(3)!.item.price).toBe(17000);
+    expect(menus.get("SMS")!.get(4)!.item.price).toBe(19000);
+    expect(menus.get("MDN.KUALANAMU")!.get(4)!.item.price).toBe(19000);
+    expect(menus.get("LIPPO-PURI")!.get(4)!.item.price).toBe(22000);
+    expect(menus.get("TNG.T2")!.get(4)!.item.price).toBe(19000);
+  });
+
   it("produk baru memakai tier outlet, bukan kategorinya", () => {
     const menus = new Map<string, PatchMenu>([["SMS", new Map()], ["LIPPO-PURI", new Map()], ["MDN.KUALANAMU", new Map()], ["TNG.SOETTA2", new Map()]]);
     applyKkMenuPatch(menus);
