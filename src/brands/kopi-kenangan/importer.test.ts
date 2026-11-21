@@ -159,6 +159,33 @@ describe("importer Kopi Kenangan", () => {
   });
 });
 
+describe("opsi produk tambahan (menu-patch)", () => {
+  const custom = (productId: number, name: string, temperatures: string[]) => ({
+    productId,
+    name,
+    options: { temperatures, sizes: [], sugarLevels: [], coffeeBeans: [], dairyChoices: [], iceLevels: [] },
+    addons: [],
+    combinations: [],
+  });
+  const buildWith = (extra: Record<string, unknown>) =>
+    buildKopiKenanganSnapshot(
+      { ...raw, customization: { products: { ...customization.products, ...extra } } },
+      "2026-11-20T12:00:00+07:00",
+    ).snapshot;
+  const groupsOf = (snapshot: ReturnType<typeof buildWith>, name: string) => {
+    const snap = CatalogSnapshotSchema.parse(snapshot);
+    const product = snap.products.find((p) => p.name === name)!;
+    return product.optionGroupIds.map((id) => snap.optionGroups.find((g) => g.id === id)!.options.map((o) => o.name));
+  };
+
+  it("memakai kustomisasi produk itu sendiri kalau ada, template hanya cadangan", () => {
+    const template = custom(500, "OG Thai Tea", ["Ice", "Hot"]);
+    expect(groupsOf(buildWith({ "500": template }), "Thai Tea")).toEqual([["Ice", "Hot"]]);
+    const own = custom(501, "Thai Tea", ["Ice"]);
+    expect(groupsOf(buildWith({ "500": template, "501": own }), "Thai Tea")).toEqual([]);
+  });
+});
+
 describe("aturan lingkup KK", () => {
   it("outlet dan produk yang tidak dilayani", () => {
     expect(isExcludedKkOutlet({ code: "KH.JKT.X", name: "x" })).toBe(true);

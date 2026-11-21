@@ -318,11 +318,13 @@ export function buildKopiKenanganSnapshot(
   }
 
   // 1b. Koreksi ke harga resmi dan tambah item yang hilang (menu-patch.ts).
-  const patch = applyKkMenuPatch(menus, new Map(served.map((o) => [o.code, o.category])));
+  const patch = applyKkMenuPatch(menus);
   warnings.push(...patch.warnings);
   const plainNewProducts = new Set<number>();
   for (const p of patch.newProducts) {
-    const template = p.optionsLike ? customByName.get(norm(p.optionsLike)) : undefined;
+    // Data kustomisasi produk itu sendiri didahulukan; template hanya cadangan.
+    const own = customByName.get(norm(p.name));
+    const template = own ?? (p.optionsLike ? customByName.get(norm(p.optionsLike)) : undefined);
     if (template) customById.set(p.id, template);
     else if (p.optionsLike) warnings.push(`Produk baru "${p.name}" dilewati: kustomisasi "${p.optionsLike}" tidak ditemukan.`);
     else plainNewProducts.add(p.id);

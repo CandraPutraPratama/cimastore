@@ -1,19 +1,33 @@
 /**
- * Koreksi menu Kopi Kenangan terhadap harga resmi (audit 21 Nov 2026, 5 outlet sample).
+ * Koreksi menu Kopi Kenangan terhadap harga resmi (audit 21 Nov 2026).
  * Data mentah (Bintang) tidak diubah; koreksi diterapkan oleh importer di atas menu per outlet.
  *
- * Harga resmi = harga yang dipakai. Tier harga diturunkan dari kategori outlet:
- * Airport = bandara, Mall = mall, selain itu = normal. Belum diaudit untuk kategori lain
- * (Train Station, Gas Station, dst.).
+ * Harga resmi = harga yang dipakai. Tier harga ditentukan per outlet (KK_TIER_OVERRIDES), BUKAN dari
+ * kategori outlet: kategori Mall/Airport terbukti sering bertier normal. Outlet yang tidak ada di
+ * peta dianggap normal. Peta ini baru berisi outlet yang sudah dicek ke API resmi.
  * Tidak dijual (keputusan pemilik): Seliter 1L dan Merch.
+ * Pengecualian yang diperlakukan normal: CRB.SHELLCL (harga flat lebih murah dari normal),
+ * JKT.CRPALMERAH (tier tidak bisa dicek, data resmi tanpa minuman).
  */
 
 export type KkTier = "normal" | "mall" | "bandara";
 
-export function kkTierOf(category: string | null | undefined): KkTier {
-  if (category === "Airport") return "bandara";
-  if (category === "Mall") return "mall";
-  return "normal";
+const tierOf = (tier: KkTier, codes: string[]) => codes.map((c) => [c, tier] as const);
+
+export const KK_TIER_OVERRIDES: Record<string, KkTier> = Object.fromEntries([
+  ...tierOf("bandara", ["TNG.SOETTA2", "DPR.BUNGURHRAI"]),
+  ...tierOf("mall", ["LIPPO-PURI", "AEON.BSD", "KOKAS", "GI", "PASARAYA", "LOTTEB"]),
+  // Berkategori Mall tapi harga resmi normal.
+  ...tierOf("normal", [
+    "ATRIUM", "SMS", "AMBAS", "BOTANI", "MKG3", "FC.SUNTER", "PP", "GANCIT", "DMALL", "PRAMUKA",
+    "LIPPO.CIKA", "BAYWALK", "LIPPO.KJ", "AEON.JGC",
+    // Berkategori Airport tapi harga resmi normal.
+    "MDN.KUALANAMU", "KK.MDN.KUALNMUAPDPTR", "TGR.T2EKBSA", "TNG.T2FSOETA",
+  ]),
+]);
+
+export function kkTierOf(outletCode: string): KkTier {
+  return KK_TIER_OVERRIDES[outletCode] ?? "normal";
 }
 
 interface NewProduct {
@@ -83,27 +97,23 @@ export const KK_OUTLET_ADDITIONS: Record<string, Record<string, number>> = {
   [TNG]: { "Choco Chip Cookies": 20000, "Raspberry Hibiscus": 30000, "Roti Keju Manis": 17000, "Roti Susu Manis": 15000 },
 };
 
-interface PriceFix {
-  from: number;
-  to: number;
-  /** Dibatasi ke satu tier; tanpa ini berlaku di semua tier. */
-  tier?: KkTier;
-}
-
-/** Bagian D: harga Bintang yang meleset dari harga resmi. Hanya harga persis `from` yang diganti. */
-export const KK_PRICE_FIXES: Record<string, PriceFix[]> = {
-  Americano: [{ from: 20000, to: 18000 }, { from: 17000, to: 15000 }],
-  "Butterscotch Aren Latte": [{ from: 22000, to: 21000 }, { from: 20000, to: 19000 }],
-  "Friend Chip Cookie": [{ from: 17000, to: 19000 }],
-  "Kenangan Milk Tea": [{ from: 21000, to: 19000 }],
-  "Lemon Black Tea": [{ from: 19000, to: 17000 }, { from: 17000, to: 15000 }],
-  "Matcha Latte": [{ from: 27000, to: 24000 }, { from: 25000, to: 22000 }],
-  "Milo Dinosaurus": [{ from: 23000, to: 22000 }],
-  "Raspberry Hibiscus": [{ from: 22000, to: 20000 }, { from: 20000, to: 18000 }],
-  "Roti Keju Manis": [{ from: 13000, to: 12000 }],
-  "Roti Susu Manis": [{ from: 10000, to: 9000 }],
-  "Avocado Coffee": [{ from: 31000, to: 28000 }],
-  "Butter Croissant": [{ from: 25000, to: 27000, tier: "bandara" }],
+/**
+ * Bagian D: harga resmi ABSOLUT per tier untuk item yang harga Bintang-nya meleset.
+ * Harga outlet di-set ke nilai tier-nya apa pun harga awalnya. Tier tanpa nilai = tidak diubah.
+ */
+export const KK_PRICE_FIXES: Record<string, Partial<Record<KkTier, number>>> = {
+  Americano: { normal: 15000, mall: 18000 },
+  "Butterscotch Aren Latte": { normal: 19000, mall: 21000 },
+  "Friend Chip Cookie": { normal: 19000, mall: 19000 },
+  "Kenangan Milk Tea": { normal: 19000, mall: 19000 },
+  "Lemon Black Tea": { normal: 15000, mall: 17000 },
+  "Matcha Latte": { normal: 22000, mall: 24000 },
+  "Milo Dinosaurus": { normal: 22000, mall: 22000 },
+  "Raspberry Hibiscus": { normal: 18000, mall: 20000 },
+  "Roti Keju Manis": { normal: 12000, mall: 12000 },
+  "Roti Susu Manis": { normal: 9000, mall: 9000 },
+  "Avocado Coffee": { normal: 28000 },
+  "Butter Croissant": { bandara: 27000 },
 };
 
 /** Kunci nama: huruf kecil, spasi dirapikan. Tanda hubung dipertahankan ("Friend-chip" != "Friend Chip"). */
@@ -132,10 +142,10 @@ export interface PatchResult {
 }
 
 /**
- * Menerapkan koreksi ke menu per outlet (diubah di tempat). `categories` = kategori tiap kode outlet.
+ * Menerapkan koreksi ke menu per outlet (diubah di tempat). Tier outlet dari KK_TIER_OVERRIDES.
  * Harga hasil koreksi tidak memakai harga coret karena sudah harga resmi.
  */
-export function applyKkMenuPatch(menus: Map<string, PatchMenu>, outletCategory: Map<string, string | null | undefined>): PatchResult {
+export function applyKkMenuPatch(menus: Map<string, PatchMenu>): PatchResult {
   const warnings: string[] = [];
   const result: PatchResult = { newProducts: [], priceFixed: 0, added: 0, warnings };
 
@@ -150,12 +160,12 @@ export function applyKkMenuPatch(menus: Map<string, PatchMenu>, outletCategory: 
 
   // D: koreksi harga.
   for (const [code, menu] of menus) {
-    const tier = kkTierOf(outletCategory.get(code));
+    const tier = kkTierOf(code);
     for (const [id, entry] of menu) {
       const fixes = Object.entries(KK_PRICE_FIXES).find(([name]) => normName(name) === normName(entry.item.name))?.[1];
-      const fix = fixes?.find((f) => f.from === entry.item.price && (!f.tier || f.tier === tier));
-      if (!fix) continue;
-      menu.set(id, { ...entry, item: { ...entry.item, price: fix.to, originalPrice: null } });
+      const price = fixes?.[tier];
+      if (price === undefined || price === entry.item.price) continue;
+      menu.set(id, { ...entry, item: { ...entry.item, price, originalPrice: null } });
       result.priceFixed++;
     }
   }
@@ -180,7 +190,7 @@ export function applyKkMenuPatch(menus: Map<string, PatchMenu>, outletCategory: 
     const id = p.id ?? KK_NEW_PRODUCT_ID_BASE + index;
     let sold = 0;
     for (const [code, menu] of menus) {
-      const price = p.outletPrices?.[code] ?? p.tierPrices?.[kkTierOf(outletCategory.get(code))];
+      const price = p.outletPrices?.[code] ?? p.tierPrices?.[kkTierOf(code)];
       if (price === undefined) continue;
       menu.set(id, { categories: new Set([p.category]), item: { id, name: p.name, price, originalPrice: null, isSoldOut: false } });
       sold++;
