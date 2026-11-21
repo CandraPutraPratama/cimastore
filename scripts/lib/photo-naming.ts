@@ -1,5 +1,3 @@
-import { stemOf } from "../../src/core/catalog/photos";
-
 export interface ProductInput {
   externalId: string;
   name: string;
@@ -16,6 +14,10 @@ export interface ResolvedProductPhotoNaming {
 }
 
 const FORBIDDEN_WINDOWS_CHARS = /[\\/:*?"<>|]/g;
+
+export function stemOf(fileName: string): string {
+  return fileName.replace(/\.[a-z0-9]+$/i, "").trim();
+}
 
 /** Membersihkan nama produk dari karakter terlarang Windows. */
 export function cleanProductName(name: string): string {

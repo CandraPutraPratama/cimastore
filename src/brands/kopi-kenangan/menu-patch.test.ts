@@ -62,7 +62,21 @@ describe("koreksi menu Kopi Kenangan", () => {
     expect(byName("AEON.BSD", "Archipelago Blend")).toBeUndefined();
     expect(byName("TNG.SOETTA2", "Pain au Chocolat")).toBe(35000);
     expect(byName("MSC", "Pain au Chocolat")).toBeUndefined();
-    expect(result.newProducts.every((p) => p.id >= KK_NEW_PRODUCT_ID_BASE)).toBe(true);
+    expect(result.newProducts.filter((p) => p.name !== "Friend-chip Cookie").every((p) => p.id >= KK_NEW_PRODUCT_ID_BASE)).toBe(true);
+    expect(new Set(result.newProducts.map((p) => p.id)).size).toBe(result.newProducts.length);
+  });
+
+  it("Friend-chip Cookie bandara adalah produk sendiri (id 8122), bukan Friend Chip Cookie (id 1261)", () => {
+    const { menus, categories } = setup();
+    menus.get("MSC")!.set(...entry(1261, "Friend Chip Cookie", 17000));
+    menus.get("TNG.SOETTA2")!.set(...entry(1261, "Friend Chip Cookie", 17000));
+    menus.get("TNG.SOETTA2")!.delete(1261);
+    applyKkMenuPatch(menus, categories);
+    const tng = menus.get("TNG.SOETTA2")!;
+    expect(tng.get(8122)!.item).toMatchObject({ name: "Friend-chip Cookie", price: 25000 });
+    expect([...tng.values()].some((e) => e.item.name === "Friend Chip Cookie" || e.item.id === 1261)).toBe(false);
+    expect(menus.get("MSC")!.get(1261)!.item.price).toBe(19000);
+    expect(menus.get("MSC")!.has(8122)).toBe(false);
   });
 
   it("tidak menambah Seliter dan Merch", () => {

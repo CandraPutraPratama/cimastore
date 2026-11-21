@@ -20,6 +20,8 @@ interface NewProduct {
   name: string;
   /** Kategori menu (salah satu KK_CATEGORY_ORDER). */
   category: string;
+  /** ID resmi KK kalau diketahui; tanpa ini dipakai id sintetis. Tidak boleh bentrok dengan produk lain. */
+  id?: number;
   /** Nama produk di kustomisasi yang opsinya ditiru. Tanpa ini = dijual tanpa pilihan. */
   optionsLike?: string;
   /** Berlaku di semua outlet menurut tier. */
@@ -66,18 +68,19 @@ export const KK_NEW_PRODUCTS: NewProduct[] = [
   { name: "Vanilla Bombolone", category: "Food", outletPrices: { [TNG]: 22000 } },
   { name: "Matcha Brioche au Craquelin", category: "Food", outletPrices: { [TNG]: 25000 } },
   { name: "Pain au Chocolat", category: "Food", outletPrices: { [TNG]: 35000 } },
+  // Produk sendiri, bukan "Friend Chip Cookie" (id 1261, Rp19.000). Id resmi KK 8122 (product_info TNG, 21 Nov);
+  // di data mentah id ini hanya dipakai produk bernama sama ("Friend-chip Cookie", kategori Boulangerie).
+  { id: 8122, name: "Friend-chip Cookie", category: "Food", outletPrices: { [TNG]: 25000 } },
 ];
 
 /**
  * Bagian C: produk yang sudah ada di katalog tapi hilang dari menu outlet ini.
- * Friend Chip Cookie di bandara tertulis "Friend-chip Cookie" (Rp25.000) di data resmi;
- * dipetakan ke produk yang sama, belum dicek ID-nya di aplikasi.
  */
 export const KK_OUTLET_ADDITIONS: Record<string, Record<string, number>> = {
   "KK.SBY.MERRNGKTDT": { "Roti Srikaya": 15000, "Roti Susu Manis": 9000, "Sugar Donut": 10000 },
   MSC: { "Choco Chip Cookies": 14000, "Join the Dark Side Cookie": 29000, "Spanish Latte": 19000 },
   "AEON.BSD": { "Butter Croissant": 15000 },
-  [TNG]: { "Choco Chip Cookies": 20000, "Raspberry Hibiscus": 30000, "Roti Keju Manis": 17000, "Roti Susu Manis": 15000, "Friend Chip Cookie": 25000 },
+  [TNG]: { "Choco Chip Cookies": 20000, "Raspberry Hibiscus": 30000, "Roti Keju Manis": 17000, "Roti Susu Manis": 15000 },
 };
 
 interface PriceFix {
@@ -103,7 +106,8 @@ export const KK_PRICE_FIXES: Record<string, PriceFix[]> = {
   "Butter Croissant": [{ from: 25000, to: 27000, tier: "bandara" }],
 };
 
-export const normName = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+/** Kunci nama: huruf kecil, spasi dirapikan. Tanda hubung dipertahankan ("Friend-chip" != "Friend Chip"). */
+export const normName = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
 
 /** Id sintetis untuk produk tambahan (id asli Bintang jauh di bawah ini). */
 export const KK_NEW_PRODUCT_ID_BASE = 900_001;
@@ -173,7 +177,7 @@ export function applyKkMenuPatch(menus: Map<string, PatchMenu>, outletCategory: 
 
   // A dan B: produk baru.
   KK_NEW_PRODUCTS.forEach((p, index) => {
-    const id = KK_NEW_PRODUCT_ID_BASE + index;
+    const id = p.id ?? KK_NEW_PRODUCT_ID_BASE + index;
     let sold = 0;
     for (const [code, menu] of menus) {
       const price = p.outletPrices?.[code] ?? p.tierPrices?.[kkTierOf(outletCategory.get(code))];
