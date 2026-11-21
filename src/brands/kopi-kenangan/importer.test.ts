@@ -76,7 +76,7 @@ const menu = (items: { cat: string; list: object[] }[]) => ({ categories: items.
 const raw = {
   outlets: [
     { id: 10, code: "LIPPO-PURI", name: "Lippo Mall Puri", address: "Jl. Puri Indah", hours: { open: "10:00:00", close: "21:45:00" }, coordinates: { lat: "-6.18", lng: "106.73" } },
-    { id: 11, code: "BANDARA", name: "Bandara", hours: null, coordinates: { lat: "0", lng: "0" } },
+    { id: 11, code: "TNG.SOETTA2", name: "Bandara", hours: null, coordinates: { lat: "0", lng: "0" } },
     { id: 12, code: "KS.JKT.AGRMALL", name: "Kenangan Signature Agora Mall" },
     { id: 13, code: "KOSONG", name: "Outlet Kosong" },
   ],
@@ -101,7 +101,7 @@ describe("importer Kopi Kenangan", () => {
   it("menyaring outlet, produk, dan melaporkan kekurangan data", () => {
     const { snapshot, report } = build();
     const snap = CatalogSnapshotSchema.parse(snapshot);
-    expect(snap.outlets.map((o) => o.code)).toEqual(["LIPPO-PURI", "BANDARA"]);
+    expect(snap.outlets.map((o) => o.code)).toEqual(["LIPPO-PURI", "TNG.SOETTA2"]);
     expect(snap.products.filter((p) => Number(p.id) < KK_NEW_PRODUCT_ID_BASE).map((p) => p.name).sort()).toEqual(["Americano", "Chocolate Croissant", "Kopi Kenangan Mantan", "Mantan Frappe", "Triple Cheese Bagel"]);
     // Minuman tambahan dari menu-patch ikut terhitung karena fixture tidak punya kustomisasi tiruannya.
     expect(report.counts).toMatchObject({ hiddenByRule: 1 });
@@ -149,11 +149,11 @@ describe("importer Kopi Kenangan", () => {
   it("harga per outlet, produk yang tidak dijual di outlet disembunyikan", () => {
     const { snapshot } = build();
     const snap = CatalogSnapshotSchema.parse(snapshot);
-    expect(resolveProductFromSnapshot(snap, "BANDARA", "1")!.basePrice).toBe(32000);
-    expect(resolveProductFromSnapshot(snap, "BANDARA", "6")!.status).toBe("hidden");
+    expect(resolveProductFromSnapshot(snap, "TNG.SOETTA2", "1")!.basePrice).toBe(32000);
+    expect(resolveProductFromSnapshot(snap, "TNG.SOETTA2", "6")!.status).toBe("hidden");
     expect(resolveProductFromSnapshot(snap, "LIPPO-PURI", "6")!.optionGroups).toEqual([]);
     expect(resolveProductFromSnapshot(snap, "LIPPO-PURI", "8")!.optionGroups).toEqual([]);
-    const bandara = snap.outlets.find((o) => o.code === "BANDARA")!;
+    const bandara = snap.outlets.find((o) => o.code === "TNG.SOETTA2")!;
     expect(bandara.lat).toBeUndefined();
     expect(snap.outlets[0].hours).toEqual({ open: "10:00", close: "21:45" });
   });
