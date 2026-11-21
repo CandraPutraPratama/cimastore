@@ -6,6 +6,10 @@
  * kategori outlet: kategori Mall/Airport terbukti sering bertier normal. Outlet yang tidak ada di
  * peta dianggap normal. Peta ini baru berisi outlet yang sudah dicek ke API resmi.
  * Tidak dijual (keputusan pemilik): Seliter 1L dan Merch.
+ * Peta mencakup scan resmi Mall/Rest Area/Gas Station/Airport (21 Nov 2026): Rest Area dan hampir semua
+ * Gas Station normal. Normal juga: 7 outlet Mantan Rp18.000 (LA.MTRLMPG, PLG.OPIMALL, TGL.PCFCMALTGL,
+ * TSM.PLZASIA, MGG.SPBBLDN, SLT.SPBUVTRN, SMN.SPBUADISCPT), 5 outlet tanpa minuman di data resmi
+ * dan KK.BKS.PKWON (data kosong).
  * Pengecualian yang diperlakukan normal: CRB.SHELLCL (harga flat lebih murah dari normal),
  * JKT.CRPALMERAH (tier tidak bisa dicek, data resmi tanpa minuman).
  */
@@ -15,8 +19,14 @@ export type KkTier = "normal" | "mall" | "bandara";
 const tierOf = (tier: KkTier, codes: string[]) => codes.map((c) => [c, tier] as const);
 
 export const KK_TIER_OVERRIDES: Record<string, KkTier> = Object.fromEntries([
-  ...tierOf("bandara", ["TNG.SOETTA2", "DPR.BUNGURHRAI"]),
-  ...tierOf("mall", ["LIPPO-PURI", "AEON.BSD", "KOKAS", "GI", "PASARAYA", "LOTTEB"]),
+  // JKT.GANDCITY berkategori Mall tapi harga resmi bandara.
+  ...tierOf("bandara", ["TNG.SOETTA2", "DPR.BUNGURHRAI", "JKT.GANDCITY"]),
+  ...tierOf("mall", [
+    "LIPPO-PURI", "AEON.BSD", "KOKAS", "GI", "PASARAYA", "LOTTEB",
+    "BDG.CHMPLSWK", "BGR.AONMLSTLCT", "BPP.EWALK", "BTM.CITYSQR", "BTM.GRANDMALL", "DPK.MRGCITY",
+    "JKT.ARTHAGDG", "JKT.LTSHAVNU", "JKT.PURDAHMALL", "JOG.RAMAIMBR", "KK.MKS.TSMMKSR", "MALL.KARAWACI",
+    "MDN.CENPOINT", "MND.MANTOS", "PAKUWAN.MALL", "PLAZA.INDO", "SMR.BIGMALL", "SMR.CENTPLZA", "TGR.TERASKOTA",
+  ]),
   // Berkategori Mall tapi harga resmi normal.
   ...tierOf("normal", [
     "ATRIUM", "SMS", "AMBAS", "BOTANI", "MKG3", "FC.SUNTER", "PP", "GANCIT", "DMALL", "PRAMUKA",
