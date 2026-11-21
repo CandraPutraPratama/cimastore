@@ -64,6 +64,7 @@ describe("koreksi menu Kopi Kenangan", () => {
       ["SMS", new Map([entry(6, "Join the Dark Side Cookie", 21000)])],
       ["DPR.BUNGURHRAI", new Map([entry(7, "Friend Chip Cookie", 22000)])],
       ["MDN.KUALANAMU", new Map([entry(5, "Latte", 32000, "Coffee")])],
+      ["GI", new Map()],
     ]);
     applyKkMenuPatch(menus);
     expect(menus.get("JKT.GANDCITY")!.get(5)!.item.price).toBe(35000);
@@ -76,7 +77,14 @@ describe("koreksi menu Kopi Kenangan", () => {
     expect(price("JKT.GANDCITY", "Friend-chip Cookie")).toBe(24000);
     expect(price("MDN.KUALANAMU", "Rice")).toBe(8000);
     expect(price("DPR.BUNGURHRAI", "Sunny Peach Americano")).toBe(27000);
-    expect(price("DPR.BUNGURHRAI", "Master Chef Peach Aren Latte")).toBeUndefined();
+    expect(price("DPR.BUNGURHRAI", "Master Chef Peach Aren Latte")).toBe(32000);
+    expect(price("DPR.BUNGURHRAI", "Sparks Americano")).toBe(32000);
+    expect(price("GI", "Sparks Americano")).toBe(21000);
+    expect(price("GI", "Archipelago Blend")).toBe(95000);
+    expect(price("JKT.GANDCITY", "Archipelago Blend")).toBe(95000);
+    expect(price("JKT.GANDCITY", "Archipelago Reserve")).toBe(110000);
+    expect(price("JKT.GANDCITY", "Join the Dark Side Cookie")).toBe(29000);
+    expect(price("MDN.KUALANAMU", "Sparks Americano")).toBeUndefined();
   });
 
   it("harga bandara dan Kopi Kenangan Mantan", () => {

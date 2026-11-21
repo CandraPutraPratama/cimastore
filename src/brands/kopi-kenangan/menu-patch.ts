@@ -81,11 +81,11 @@ export const KK_NEW_PRODUCTS: NewProduct[] = [
   { name: "Freezy Mocha Latte", category: "Kenangan Frappe", optionsLike: "Kopi Kenangan Mantan Frappe", tierPrices: tiers(30000, 35000, 41000) },
   { name: "Freezy Nobo Honey Mango", category: "Kenangan Frappe", optionsLike: "Dutch Choco Kenangan Frappe", tierPrices: tiers(26000, 28000, 36000), outletPrices: { "JKT.GANDCITY": 45000 } },
   // Hanya sellable di sebagian outlet sample: ditambah ke outlet itu saja.
-  { name: "Archipelago Blend", category: "Coffee", outletPrices: { [MSC]: 95000, [TNG]: 95000 } },
-  { name: "Archipelago Reserve", category: "Coffee", outletPrices: { [LIPPO]: 110000, [MSC]: 110000, [TNG]: 110000 } },
-  { name: "Sparks Americano", category: "Coffee", optionsLike: "Banana Americano", outletPrices: { [MSC]: 20000 } },
+  { name: "Archipelago Blend", category: "Coffee", outletPrices: { [MSC]: 95000, [TNG]: 95000, "JKT.GANDCITY": 95000, GI: 95000 } },
+  { name: "Archipelago Reserve", category: "Coffee", outletPrices: { [LIPPO]: 110000, [MSC]: 110000, [TNG]: 110000, "JKT.GANDCITY": 110000 } },
+  { name: "Sparks Americano", category: "Coffee", optionsLike: "Banana Americano", outletPrices: { [MSC]: 20000, "DPR.BUNGURHRAI": 32000, GI: 21000 } },
   { name: "Nobo Honey Mango", category: "Non Coffee", optionsLike: "Lemon Black Tea", outletPrices: { [LIPPO]: 26000 } },
-  { name: "Master Chef Peach Aren Latte", category: "Coffee", optionsLike: "Creamy Aren Latte", outletPrices: { [TNG]: 32000 } },
+  { name: "Master Chef Peach Aren Latte", category: "Coffee", optionsLike: "Creamy Aren Latte", outletPrices: { [TNG]: 32000, "DPR.BUNGURHRAI": 32000 } },
   { name: "Strawberry Cromboloni", category: "Food", outletPrices: { [LIPPO]: 26000 } },
   { name: "Coffee Bombolone", category: "Food", outletPrices: { [TNG]: 22000 } },
   { name: "Cream Cheese Bombolone", category: "Food", outletPrices: { [TNG]: 22000 } },
@@ -113,7 +113,7 @@ export const KK_OUTLET_ADDITIONS: Record<string, Record<string, number>> = {
   // yang hilang atau menimpa harga produk yang sudah ada di outlet itu.
   // GANDCITY: outlet premium, harga resmi di atas tier bandara. Honey Latte, Freezy Nobo Honey Mango dan
   // Friend-chip Cookie (produk baru) diatur lewat outletPrices.
-  "JKT.GANDCITY": { Latte: 35000, Cappuccino: 35000, "Butterscotch Sea Salt Latte": 44000, "Caramel Macchiato": 45000, Babyccino: 28000 },
+  "JKT.GANDCITY": { "Join the Dark Side Cookie": 29000, Latte: 35000, Cappuccino: 35000, "Butterscotch Sea Salt Latte": 44000, "Caramel Macchiato": 45000, Babyccino: 28000 },
   SMS: { "Butter Croissant": 15000, "Sugar Donut": 10000, "Join the Dark Side Cookie": 29000, Latte: 22000, Cappuccino: 22000 },
   "MDN.KUALANAMU": {
     // "1 Pcs KrunChi" (resmi Rp24.000) sengaja tidak ditambah: KrunChi disembunyikan oleh aturan pemilik (importer.ts).
@@ -121,7 +121,6 @@ export const KK_OUTLET_ADDITIONS: Record<string, Record<string, number>> = {
     Latte: 22000, Cappuccino: 22000, "Chocolate Croissant": 19000, "Butter Croissant": 15000, "Roti Coklat Klasik": 9000,
     "Choco Chip Cookies": 14000, "Sugar Donut": 10000, "Chocolate Donut": 13000, "Roti Srikaya": 15000,
   },
-  // Master Chef Peach Aren Latte dan Sparks Americano memang tidak dijual di DPR.
   "DPR.BUNGURHRAI": {
     "Milk Tea Boba": 35000, "Oatside Matcha Latte": 35000, "Roti Keju Manis": 17000,
     "Susu Boba Gula Aren": 36000, "Oatside Kopi Kenangan Mantan": 31000, "Oatside Latte": 35000, "Friend Chip Cookie": 25000,
