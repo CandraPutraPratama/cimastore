@@ -3,8 +3,6 @@ import { CatalogSnapshotSchema } from "../../core/catalog/snapshot";
 import { defaultOptionIds, resolveProductFromSnapshot } from "../../core/catalog/resolve";
 import { priceLine } from "../../core/catalog/selection";
 import { KK_NEW_PRODUCTS } from "./menu-patch";
-
-const patchNames = new Set(KK_NEW_PRODUCTS.map((p) => p.name));
 import { buildKopiKenanganSnapshot, isExcludedKkOutlet, isHiddenKkProduct } from "./importer";
 
 const addons = [
@@ -104,10 +102,8 @@ describe("importer Kopi Kenangan", () => {
     const { snapshot, report } = build();
     const snap = CatalogSnapshotSchema.parse(snapshot);
     expect(snap.outlets.map((o) => o.code)).toEqual(["LIPPO-PURI", "TNG.SOETTA2"]);
-    expect(snap.products.filter((p) => !patchNames.has(p.name)).map((p) => p.name).sort()).toEqual(["Americano", "Chocolate Croissant", "Kopi Kenangan Mantan", "Mantan Frappe", "Triple Cheese Bagel"]);
-    // Minuman tambahan dari menu-patch ikut terhitung karena fixture tidak punya kustomisasi tiruannya.
-    expect(report.counts).toMatchObject({ hiddenByRule: 1 });
-    expect(report.counts.missingCustomization).toBeGreaterThanOrEqual(1);
+    expect(snap.products.map((p) => p.name).sort()).toEqual(["Americano", "Chocolate Croissant", "Kopi Kenangan Mantan", "Mantan Frappe", "Triple Cheese Bagel"]);
+    expect(report.counts).toMatchObject({ hiddenByRule: 1, missingCustomization: 1 });
     expect(report.warnings.join("\n")).toContain("Mocha Latte (1 outlet)");
     expect(report.warnings.join("\n")).toContain("1 outlet Kenangan Signature/Heritage/Chigo");
     expect(report.warnings.join("\n")).toContain("1 produk dicocokkan ke data kustomisasi lewat nama");
@@ -181,10 +177,15 @@ describe("opsi produk tambahan (menu-patch)", () => {
   };
 
   it("memakai kustomisasi produk itu sendiri kalau ada, template hanya cadangan", () => {
-    const template = custom(500, "OG Thai Tea", ["Ice", "Hot"]);
-    expect(groupsOf(buildWith({ "500": template }), "Thai Tea")).toEqual([["Ice", "Hot"]]);
-    const own = custom(501, "Thai Tea", ["Ice"]);
-    expect(groupsOf(buildWith({ "500": template, "501": own }), "Thai Tea")).toEqual([]);
+    KK_NEW_PRODUCTS.push({ name: "Uji Minuman", category: "Coffee", optionsLike: "OG Thai Tea", outletPrices: { "LIPPO-PURI": 20000 } });
+    try {
+      const template = custom(500, "OG Thai Tea", ["Ice", "Hot"]);
+      expect(groupsOf(buildWith({ "500": template }), "Uji Minuman")).toEqual([["Ice", "Hot"]]);
+      const own = custom(501, "Uji Minuman", ["Ice"]);
+      expect(groupsOf(buildWith({ "500": template, "501": own }), "Uji Minuman")).toEqual([]);
+    } finally {
+      KK_NEW_PRODUCTS.length = 0;
+    }
   });
 });
 

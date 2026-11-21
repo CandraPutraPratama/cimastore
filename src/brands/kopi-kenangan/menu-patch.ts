@@ -54,52 +54,14 @@ interface NewProduct {
   outletPrices?: Record<string, number>;
 }
 
-const MSC = "MSC";
-const LIPPO = "LIPPO-PURI";
 const TNG = "TNG.SOETTA2";
 
-const tiers = (normal: number, mall: number, bandara: number) => ({ normal, mall, bandara });
-
-/** Bagian A dan B: produk yang tidak ada di data mentah. Opsi minuman ditiru dari produk serupa. */
-export const KK_NEW_PRODUCTS: NewProduct[] = [
-  { name: "Apple Americano", category: "Coffee", optionsLike: "Banana Americano", tierPrices: tiers(24000, 24000, 24000) },
-  { name: "Apple Tea", category: "Non Coffee", optionsLike: "Lemon Black Tea", tierPrices: tiers(18000, 18000, 18000) },
-  { name: "Peach Tea", category: "Non Coffee", optionsLike: "Lemon Black Tea", tierPrices: tiers(18000, 18000, 18000) },
-  { name: "Thai Tea", category: "Non Coffee", optionsLike: "OG Thai Tea", tierPrices: tiers(22000, 22000, 34000) },
-  { name: "Honey Latte", category: "Coffee", optionsLike: "Latte", tierPrices: tiers(22000, 24000, 32000), outletPrices: { "JKT.GANDCITY": 44000 } },
-  { name: "Honey Macchiato Cream Americano", category: "Coffee", optionsLike: "Banana Americano", tierPrices: tiers(19000, 21000, 29000) },
-  { name: "Orange Americano", category: "Coffee", optionsLike: "Banana Americano", tierPrices: tiers(17000, 19000, 27000) },
-  { name: "Oatside Boba Gula Aren", category: "Non Coffee", optionsLike: "Susu Boba Gula Aren", tierPrices: tiers(27000, 27000, 39000) },
-  { name: "Dreamy Choco Orange", category: "Non Coffee", optionsLike: "Dutch Chocolate", tierPrices: tiers(19000, 21000, 29000) },
-  { name: "Chocolate Milk Bun", category: "Food", tierPrices: tiers(25000, 25000, 34000) },
-  { name: "Vanilla Milk Bun", category: "Food", tierPrices: tiers(25000, 25000, 34000) },
-  // Freezy: opsi ditiru dari Kenangan Frappe.
-  { name: "Freezy Dutch Chocolate", category: "Kenangan Frappe", optionsLike: "Dutch Choco Kenangan Frappe", tierPrices: tiers(28000, 33000, 38000) },
-  { name: "Freezy Kopi Kenangan Mantan", category: "Kenangan Frappe", optionsLike: "Kopi Kenangan Mantan Frappe", tierPrices: tiers(23000, 28000, 32000) },
-  { name: "Freezy Latte", category: "Kenangan Frappe", optionsLike: "Kopi Kenangan Mantan Frappe", tierPrices: tiers(25000, 30000, 35000) },
-  { name: "Freezy Matcha Latte", category: "Kenangan Frappe", optionsLike: "Matcha Kenangan Frappe", tierPrices: tiers(25000, 30000, 35000) },
-  { name: "Freezy Mocha Latte", category: "Kenangan Frappe", optionsLike: "Kopi Kenangan Mantan Frappe", tierPrices: tiers(30000, 35000, 41000) },
-  { name: "Freezy Nobo Honey Mango", category: "Kenangan Frappe", optionsLike: "Dutch Choco Kenangan Frappe", tierPrices: tiers(26000, 28000, 36000), outletPrices: { "JKT.GANDCITY": 45000 } },
-  // Hanya sellable di sebagian outlet sample: ditambah ke outlet itu saja.
-  { name: "Archipelago Blend", category: "Coffee", outletPrices: { [MSC]: 95000, [TNG]: 95000, "JKT.GANDCITY": 95000, GI: 95000 } },
-  { name: "Archipelago Reserve", category: "Coffee", outletPrices: { [LIPPO]: 110000, [MSC]: 110000, [TNG]: 110000, "JKT.GANDCITY": 110000 } },
-  { name: "Sparks Americano", category: "Coffee", optionsLike: "Banana Americano", outletPrices: { [MSC]: 20000, "DPR.BUNGURHRAI": 32000, GI: 21000 } },
-  { name: "Nobo Honey Mango", category: "Non Coffee", optionsLike: "Lemon Black Tea", outletPrices: { [LIPPO]: 26000 } },
-  { name: "Master Chef Peach Aren Latte", category: "Coffee", optionsLike: "Creamy Aren Latte", outletPrices: { [TNG]: 32000, "DPR.BUNGURHRAI": 32000 } },
-  { name: "Strawberry Cromboloni", category: "Food", outletPrices: { [LIPPO]: 26000 } },
-  { name: "Coffee Bombolone", category: "Food", outletPrices: { [TNG]: 22000 } },
-  { name: "Cream Cheese Bombolone", category: "Food", outletPrices: { [TNG]: 22000 } },
-  { name: "Vanilla Bombolone", category: "Food", outletPrices: { [TNG]: 22000 } },
-  { name: "Matcha Brioche au Craquelin", category: "Food", outletPrices: { [TNG]: 25000 } },
-  { name: "Pain au Chocolat", category: "Food", outletPrices: { [TNG]: 35000 } },
-  // Tidak ada di menu yang diimpor (Rice: kategori Sides, id resmi 403; dua lainnya tidak ada di data mentah).
-  { name: "Choco Chunk Crookie", category: "Food", outletPrices: { "MDN.KUALANAMU": 24000 } },
-  { name: "Rice", category: "Food", id: 403, outletPrices: { "MDN.KUALANAMU": 8000 } },
-  { name: "Sunny Peach Americano", category: "Coffee", optionsLike: "Banana Americano", outletPrices: { "DPR.BUNGURHRAI": 27000 } },
-  // Produk sendiri, bukan "Friend Chip Cookie" (id 1261, Rp19.000). Id resmi KK 8122 (product_info TNG, 21 Nov);
-  // di data mentah id ini hanya dipakai produk bernama sama ("Friend-chip Cookie", kategori Boulangerie).
-  { id: 8122, name: "Friend-chip Cookie", category: "Food", outletPrices: { [TNG]: 25000, "JKT.GANDCITY": 24000 } },
-];
+/**
+ * Produk baru yang tidak ada di data mentah (mekanisme A/B, harga per tier atau per outlet).
+ * Dikosongkan atas keputusan pemilik 21 Nov 2026: 32 menu lama tidak dijual lagi.
+ * Daftarnya ada di riwayat git (commit 51c638c s.d. 50cd0a9) untuk dikembalikan bila perlu.
+ */
+export const KK_NEW_PRODUCTS: NewProduct[] = [];
 
 /**
  * Bagian C: produk yang sudah ada di katalog tapi hilang dari menu outlet ini.

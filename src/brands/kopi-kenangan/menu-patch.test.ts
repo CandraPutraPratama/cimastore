@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyKkMenuPatch, kkTierOf, KK_NEW_PRODUCT_ID_BASE, type PatchMenu } from "./menu-patch";
+import { applyKkMenuPatch, kkTierOf, KK_NEW_PRODUCTS, KK_NEW_PRODUCT_ID_BASE, type PatchMenu } from "./menu-patch";
 
 const entry = (id: number, name: string, price: number, cat = "Food") => [
   id,
@@ -58,33 +58,18 @@ describe("koreksi menu Kopi Kenangan", () => {
     expect(menus.get("JKT.GANDCITY")!.get(1)!.item.price).not.toBe(20000);
   });
 
-  it("override per outlet (C) menimpa harga produk yang sudah ada, outletPrices untuk produk baru", () => {
+  it("override per outlet (C) menimpa harga produk yang sudah ada", () => {
     const menus = new Map<string, PatchMenu>([
       ["JKT.GANDCITY", new Map([entry(5, "Latte", 24000, "Coffee")])],
       ["SMS", new Map([entry(6, "Join the Dark Side Cookie", 21000)])],
       ["DPR.BUNGURHRAI", new Map([entry(7, "Friend Chip Cookie", 22000)])],
       ["MDN.KUALANAMU", new Map([entry(5, "Latte", 32000, "Coffee")])],
-      ["GI", new Map()],
     ]);
     applyKkMenuPatch(menus);
     expect(menus.get("JKT.GANDCITY")!.get(5)!.item.price).toBe(35000);
     expect(menus.get("SMS")!.get(6)!.item.price).toBe(29000);
     expect(menus.get("DPR.BUNGURHRAI")!.get(7)!.item.price).toBe(25000);
     expect(menus.get("MDN.KUALANAMU")!.get(5)!.item.price).toBe(22000);
-    const price = (code: string, name: string) => [...menus.get(code)!.values()].find((e) => e.item.name === name)?.item.price;
-    expect(price("JKT.GANDCITY", "Honey Latte")).toBe(44000);
-    expect(price("JKT.GANDCITY", "Freezy Nobo Honey Mango")).toBe(45000);
-    expect(price("JKT.GANDCITY", "Friend-chip Cookie")).toBe(24000);
-    expect(price("MDN.KUALANAMU", "Rice")).toBe(8000);
-    expect(price("DPR.BUNGURHRAI", "Sunny Peach Americano")).toBe(27000);
-    expect(price("DPR.BUNGURHRAI", "Master Chef Peach Aren Latte")).toBe(32000);
-    expect(price("DPR.BUNGURHRAI", "Sparks Americano")).toBe(32000);
-    expect(price("GI", "Sparks Americano")).toBe(21000);
-    expect(price("GI", "Archipelago Blend")).toBe(95000);
-    expect(price("JKT.GANDCITY", "Archipelago Blend")).toBe(95000);
-    expect(price("JKT.GANDCITY", "Archipelago Reserve")).toBe(110000);
-    expect(price("JKT.GANDCITY", "Join the Dark Side Cookie")).toBe(29000);
-    expect(price("MDN.KUALANAMU", "Sparks Americano")).toBeUndefined();
   });
 
   it("harga bandara dan Kopi Kenangan Mantan", () => {
@@ -106,13 +91,6 @@ describe("koreksi menu Kopi Kenangan", () => {
     expect(menus.get("TNG.T2")!.get(4)!.item.price).toBe(19000);
   });
 
-  it("produk baru memakai tier outlet, bukan kategorinya", () => {
-    const menus = new Map<string, PatchMenu>([["SMS", new Map()], ["LIPPO-PURI", new Map()], ["MDN.KUALANAMU", new Map()], ["TNG.SOETTA2", new Map()]]);
-    applyKkMenuPatch(menus);
-    const price = (code: string) => [...menus.get(code)!.values()].find((e) => e.item.name === "Thai Tea")?.item.price;
-    expect([price("SMS"), price("MDN.KUALANAMU"), price("LIPPO-PURI"), price("TNG.SOETTA2")]).toEqual([22000, 22000, 22000, 34000]);
-  });
-
   it("koreksi dengan tier hanya berlaku di tier itu", () => {
     const { menus } = setup();
     applyKkMenuPatch(menus);
@@ -129,32 +107,42 @@ describe("koreksi menu Kopi Kenangan", () => {
     expect(menus.get("AEON.BSD")!.has(4)).toBe(false);
   });
 
-  it("produk baru per tier masuk semua outlet, produk per outlet hanya di outlet itu", () => {
+  it("KK_NEW_PRODUCTS kosong (32 menu lama dihapus pemilik) sehingga tidak ada produk baru", () => {
     const { menus } = setup();
-    const result = applyKkMenuPatch(menus);
-    const byName = (code: string, name: string) => [...menus.get(code)!.values()].find((e) => e.item.name === name)?.item.price;
-    expect(byName("MSC", "Thai Tea")).toBe(22000);
-    expect(byName("AEON.BSD", "Thai Tea")).toBe(22000);
-    expect(byName("TNG.SOETTA2", "Thai Tea")).toBe(34000);
-    expect(byName("MSC", "Archipelago Blend")).toBe(95000);
-    expect(byName("AEON.BSD", "Archipelago Blend")).toBeUndefined();
-    expect(byName("TNG.SOETTA2", "Pain au Chocolat")).toBe(35000);
-    expect(byName("MSC", "Pain au Chocolat")).toBeUndefined();
-    expect(result.newProducts.filter((p) => p.name !== "Friend-chip Cookie").every((p) => p.id >= KK_NEW_PRODUCT_ID_BASE)).toBe(true);
-    expect(new Set(result.newProducts.map((p) => p.id)).size).toBe(result.newProducts.length);
+    expect(KK_NEW_PRODUCTS).toEqual([]);
+    expect(applyKkMenuPatch(menus).newProducts).toEqual([]);
+    expect([...menus.values()].every((m) => [...m.keys()].every((id) => id < KK_NEW_PRODUCT_ID_BASE))).toBe(true);
   });
 
-  it("Friend-chip Cookie bandara adalah produk sendiri (id 8122), bukan Friend Chip Cookie (id 1261)", () => {
+  it("mekanisme produk baru tetap jalan: harga tier, outletPrices didahulukan, id resmi dihormati", () => {
     const { menus } = setup();
-    menus.get("MSC")!.set(...entry(1261, "Friend Chip Cookie", 17000));
-    menus.get("TNG.SOETTA2")!.set(...entry(1261, "Friend Chip Cookie", 17000));
-    menus.get("TNG.SOETTA2")!.delete(1261);
+    KK_NEW_PRODUCTS.push(
+      { name: "Uji Tier", category: "Coffee", tierPrices: { normal: 10000, mall: 11000, bandara: 12000 }, outletPrices: { MSC: 9000 } },
+      { id: 4242, name: "Uji Id", category: "Food", outletPrices: { "TNG.SOETTA2": 5000 } },
+    );
+    try {
+      const { newProducts } = applyKkMenuPatch(menus);
+      const price = (code: string, name: string) => [...menus.get(code)!.values()].find((e) => e.item.name === name)?.item.price;
+      expect(price("MSC", "Uji Tier")).toBe(9000);
+      expect(price("AEON.BSD", "Uji Tier")).toBe(11000);
+      expect(price("TNG.SOETTA2", "Uji Tier")).toBe(12000);
+      expect(price("MSC", "Uji Id")).toBeUndefined();
+      expect(menus.get("TNG.SOETTA2")!.get(4242)!.item.price).toBe(5000);
+      expect(newProducts.map((p) => p.id)).toEqual([KK_NEW_PRODUCT_ID_BASE, 4242]);
+    } finally {
+      KK_NEW_PRODUCTS.length = 0;
+    }
+  });
+
+  it("Friend Chip Cookie (id 1261) tidak tertukar dengan Friend-chip Cookie (id 8122) dan tidak dikoreksi di bandara", () => {
+    const menus = new Map<string, PatchMenu>([
+      ["MSC", new Map([entry(1261, "Friend Chip Cookie", 17000), entry(8122, "Friend-chip Cookie", 25000)])],
+      ["TNG.SOETTA2", new Map([entry(1261, "Friend Chip Cookie", 17000)])],
+    ]);
     applyKkMenuPatch(menus);
-    const tng = menus.get("TNG.SOETTA2")!;
-    expect(tng.get(8122)!.item).toMatchObject({ name: "Friend-chip Cookie", price: 25000 });
-    expect([...tng.values()].some((e) => e.item.name === "Friend Chip Cookie" || e.item.id === 1261)).toBe(false);
     expect(menus.get("MSC")!.get(1261)!.item.price).toBe(19000);
-    expect(menus.get("MSC")!.has(8122)).toBe(false);
+    expect(menus.get("MSC")!.get(8122)!.item.price).toBe(25000);
+    expect(menus.get("TNG.SOETTA2")!.get(1261)!.item.price).toBe(17000);
   });
 
   it("tidak menambah Seliter dan Merch", () => {
