@@ -112,7 +112,7 @@ export const KK_OUTLET_ADDITIONS: Record<string, Record<string, number>> = {
  * Harga outlet di-set ke nilai tier-nya apa pun harga awalnya. Tier tanpa nilai = tidak diubah.
  */
 export const KK_PRICE_FIXES: Record<string, Partial<Record<KkTier, number>>> = {
-  Americano: { normal: 15000, mall: 18000 },
+  Americano: { normal: 15000, mall: 18000, bandara: 30000 },
   "Butterscotch Aren Latte": { normal: 19000, mall: 21000 },
   "Friend Chip Cookie": { normal: 19000, mall: 19000 },
   "Kenangan Milk Tea": { normal: 19000, mall: 19000 },

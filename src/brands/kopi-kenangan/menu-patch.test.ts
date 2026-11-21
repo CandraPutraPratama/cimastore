@@ -43,7 +43,7 @@ describe("koreksi menu Kopi Kenangan", () => {
       ["MDN.KUALANAMU", new Map([entry(1, "Americano", 30000, "Coffee")])],
       ["LIPPO-PURI", new Map([entry(1, "Americano", 20000, "Coffee")])],
       ["BDG.CHMPLSWK", new Map([entry(1, "Americano", 20000, "Coffee")])],
-      ["JKT.GANDCITY", new Map([entry(1, "Americano", 30000, "Coffee")])],
+      ["JKT.GANDCITY", new Map([entry(1, "Americano", 20000, "Coffee")])],
       ["BIASA", new Map([entry(1, "Americano", 20000, "Coffee")])],
       ["TNG.SOETTA2", new Map([entry(1, "Americano", 30000, "Coffee")])],
     ]);
@@ -55,6 +55,7 @@ describe("koreksi menu Kopi Kenangan", () => {
     expect(menus.get("TNG.SOETTA2")!.get(1)!.item.price).toBe(30000);
     expect(menus.get("BDG.CHMPLSWK")!.get(1)!.item.price).toBe(18000);
     expect(menus.get("JKT.GANDCITY")!.get(1)!.item.price).toBe(30000);
+    expect(menus.get("JKT.GANDCITY")!.get(1)!.item.price).not.toBe(20000);
   });
 
   it("produk baru memakai tier outlet, bukan kategorinya", () => {
